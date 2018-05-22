@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html class="has-navbar-fixed-top">
+<head>
+    <meta charset="utf-8">
+<title>OPTICS算法基础 - 黎光</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/outdated-browser/1.1.5/outdatedbrowser.min.css">
+
+
+
+
+
+
+<link rel="icon" href="/favicon.png">
+
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Ovo|Source+Code+Pro">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightgallery/1.6.8/css/lightgallery.min.css">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.6.5/css/justifiedGallery.min.css">
+
+
+<link rel="stylesheet" href="/css/style.css">
+<script defer src="//use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
+
+</head>
+<body>
+    
+<nav class="navbar is-transparent is-fixed-top navbar-main" role="navigation" aria-label="main navigation">
+    <div class="container">
+        <div class="navbar-brand">
+            <a class="navbar-item navbar-logo" href="/">
+                
+                    
+                    黎光
+                    
+                
+            </a>
+            <div class="navbar-burger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+        
+        <div class="navbar-menu navbar-start">
+            
+            <a class="navbar-item "
+               href="/archives">Archives</a>
+            
+        </div>
+        
+        <div class="navbar-menu navbar-end">
+            
+            <a class="navbar-item search" href="javascript:;">
+                <i class="fas fa-search"></i>
+            </a>
+            
+            
+            
+            <a class="navbar-item" href="https://github.com/bacterous">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+               
+            
+        </div>
+    </div>
+</nav>
+
+    <section class="section">
+    <div class="container">
+    <article class="article content gallery" itemscope itemprop="blogPost">
+    <h1 class="article-title is-size-3 is-size-4-mobile" itemprop="name">
+        
+            OPTICS算法基础
+        
+    </h1>
+    <div class="article-meta columns is-variable is-1 is-multiline is-mobile is-size-7-mobile">
+        <span class="column is-narrow">
+            <time datetime="2018-01-06T12:56:35.000Z" itemprop="datePublished">5 个月前</time>
+        </span>
+        
+        <span class="column is-narrow article-category">
+            <i class="far fa-folder"></i>
+            <a class="article-category-link" href="/categories/Machine-Learning/">Machine Learning</a>
+        </span>
+        
+        
+        <span class="column is-narrow">
+            
+            
+            7 分钟 读完 (约 1092 字)
+        </span>
+        
+    </div>
+    <div class="article-entry is-size-6-mobile" itemprop="articleBody">
+    
+        <p>在前面介绍的DBSCAN算法中，有两个初始参数E（邻域半径）和minPts(E邻域最小点数)需要用户手动设置输入，并且聚类的类簇结果对这两个参数的取值非常敏感，不同的取值将产生不同的聚类结果，其实这也是大多数其他需要初始化参数聚类算法的弊端。</p>
+<a id="more"></a>
+<p>为了克服DBSCAN算法这一缺点，提出了OPTICS算法（Ordering Points to identify the clustering structure）。OPTICS并不显示的产生结果类簇，而是为聚类分析生成一个增广的簇排序（比如，以可达距离为纵轴，样本点输出次序为横轴的坐标图），这个排序代表了各样本点基于密度的聚类结构。它包含的信息等价于从一个广泛的参数设置所获得的基于密度的聚类，换句话说，从这个排序中可以得到基于任何参数E和minPts的DBSCAN算法的聚类结果。</p>
+<h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p>OPTICS算法的基础有两点，</p>
+<ul>
+<li>参数（半径，最少点数）：</li>
+</ul>
+<p>一个是输入的参数，包括:半径ε，和最少点数MinPts。</p>
+<ul>
+<li>定义（核心点，核心距离，可达距离，直接密度可达）：</li>
+</ul>
+<p>另一个是相关概念的定义：<br>核心点的定义，如果一个点的半径内包含点的数量不少于最少点数，则该点为核心点，数学描述即</p>
+<p>Nε(P)&gt;=MinPts</p>
+<p>在这个基础上可以引出核心距离的定义，即对于核心点，距离其第MinPtsth近的点与之的距离</p>
+<p>coreDist(P)={UNDIFED, MinPtsth Distance in N(P),if N(P)&lt;=MinPtselse</p>
+<p>可达距离，对于核心点P，O到P的可达距离定义为O到P的距离或者P的核心距离，即公式</p>
+<p>reachDist(O,P)={UNDIFED, max(coreDist(P), dist(O,P)),if N(P)&lt;=MinPtselse</p>
+<p>O到P直接密度可达，即P为核心点，且P到O的距离小于半径。</p>
+<h3 id="算法"><a href="#算法" class="headerlink" title="算法"></a>算法</h3><p>OPTICS算法的难点在于维护核心点的直接可达点的有序列表。算法的计算过程如下：</p>
+<ul>
+<li>输入：数据样本D，初始化所有点的可达距离和核心距离为MAX，半径ε，和最少点数MinPts。</li>
+<li>1、建立两个队列，有序队列（核心点及该核心点的直接密度可达点），结果队列（存储样本输出及处理次序）</li>
+<li>2、如果D中数据全部处理完，则算法结束，否则从D中选择一个未处理且未核心对象的点，将该核心点放入结果队列，该核心点的直接密度可达点放入有序队列，直接密度可达点并按可达距离升序排列；</li>
+<li>3、如果有序序列为空，则回到步骤2，否则从有序队列中取出第一个点；</li>
+<li>3.1 判断该点是否为核心点，不是则回到步骤3，是的话则将该点存入结果队列，如果该点不在结果队列；</li>
+<li>3.2 该点是核心点的话，找到其所有直接密度可达点，并将这些点放入有序队列，且将有序队列中的点按照可达距离重新排序，如果该点已经在有序队列中且新的可达距离较小，则更新该点的可达距离。</li>
+<li>3.3 重复步骤3，直至有序队列为空。</li>
+<li>4、算法结束。</li>
+</ul>
+<h3 id="输出结果"><a href="#输出结果" class="headerlink" title="输出结果"></a>输出结果</h3><p>给定半径ε，和最少点数MinPts，就可以输出所有的聚类。</p>
+<p>计算过程为：</p>
+<p>给定结果队列</p>
+<ul>
+<li>1、从结果队列中按顺序取出点，如果该点的可达距离不大于给定半径ε，则该点属于当前类别，否则至步骤2；</li>
+<li>2、如果该点的核心距离大于给定半径ε，则该点为噪声，可以忽略，否则该点属于新的聚类，跳至步骤1；</li>
+<li>3、结果队列遍历结束，则算法结束。</li>
+</ul>
+
+    
+    </div>
+    
+    <div class="columns is-variable is-1 is-multiline is-mobile">
+    
+        <span class="column is-narrow"><a class="tag is-light article-tag" href="/tags/OPTICS/">#OPTICS</a></span>
+    
+        <span class="column is-narrow"><a class="tag is-light article-tag" href="/tags/cluster/">#cluster</a></span>
+    
+    </div>
+    
+    
+    <div class="columns is-mobile is-multiline article-nav">
+        <span class="column is-12-mobile is-half-desktop  article-nav-prev">
+            
+            <a href="/2018/01/28/梯度下降法/">梯度下降法</a>
+            
+        </span>
+        <span class="column is-12-mobile is-half-desktop  article-nav-next">
+            
+            <a href="/2017/12/18/理解ResNet、Inception与Xception/">理解ResNet、Inception与Xception</a>
+            
+        </span>
+    </div>
+    
+</article>
+
+
+
+
+    </div>
+</section>
+    <footer class="footer">
+    <div class="container">
+        <div class="columns content">
+            <div class="column is-narrow has-text-centered">
+                &copy; 2018 Joey Lee&nbsp;
+                Powered by <a href="http://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="http://github.com/ppoffice/hexo-theme-minos">Minos</a>
+            </div>
+            <div class="column is-hidden-mobile"></div>
+
+            
+            <div class="column is-narrow">
+                <div class="columns is-mobile is-multiline is-centered">
+                
+                    
+                <a class="column is-narrow has-text-black" href="https://github.com/bacterous">
+                    
+                    GitHub
+                    
+                </a>
+                
+                </div>
+            </div>
+            
+            
+        </div>
+    </div>
+</footer>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<!-- test if the browser is outdated -->
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/">Update my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="//cdnjs.cloudflare.com/ajax/libs/outdated-browser/1.1.5/outdatedbrowser.min.js"></script>
+<script>
+    $(document).ready(function () {
+        //plugin function, place inside DOM ready function
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        })
+    });
+</script>
+
+<script>
+    window.FontAwesomeConfig = {
+        searchPseudoElements: true
+    }
+</script>
+
+
+    
+    
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": {matchFontHeight: false},
+    SVG: {matchFontHeight: false},
+    CommonHTML: {matchFontHeight: false},
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      processEscapes: true
+    }
+  });
+</script>
+  <!-- Use cdnjs as CDN provider -->
+  <script type="text/javascript" async
+    src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
+  </script>
+
+
+    
+    
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightgallery/1.6.8/js/lightgallery-all.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.6.5/js/jquery.justifiedGallery.min.js"></script>
+<script>
+    (function ($) {
+        $(document).ready(function () {
+            if (typeof($.fn.lightGallery) === 'function') {
+                $('.article.gallery').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof($.fn.justifiedGallery) === 'function') {
+                $('.justified-gallery').justifiedGallery();
+            }
+        });
+    })(jQuery);
+</script>
+
+    
+    
+
+    
+
+
+<script src="/js/script.js"></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-mask"></div>
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="站内搜索" />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js"></script>
+    
+</body>
+</html>

@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html class="has-navbar-fixed-top">
+<head>
+    <meta charset="utf-8">
+<title>梯度下降法 - 黎光</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/outdated-browser/1.1.5/outdatedbrowser.min.css">
+
+
+
+
+
+
+<link rel="icon" href="/favicon.png">
+
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Ovo|Source+Code+Pro">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightgallery/1.6.8/css/lightgallery.min.css">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.6.5/css/justifiedGallery.min.css">
+
+
+<link rel="stylesheet" href="/css/style.css">
+<script defer src="//use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
+
+</head>
+<body>
+    
+<nav class="navbar is-transparent is-fixed-top navbar-main" role="navigation" aria-label="main navigation">
+    <div class="container">
+        <div class="navbar-brand">
+            <a class="navbar-item navbar-logo" href="/">
+                
+                    
+                    黎光
+                    
+                
+            </a>
+            <div class="navbar-burger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+        
+        <div class="navbar-menu navbar-start">
+            
+            <a class="navbar-item "
+               href="/archives">Archives</a>
+            
+        </div>
+        
+        <div class="navbar-menu navbar-end">
+            
+            <a class="navbar-item search" href="javascript:;">
+                <i class="fas fa-search"></i>
+            </a>
+            
+            
+            
+            <a class="navbar-item" href="https://github.com/bacterous">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+               
+            
+        </div>
+    </div>
+</nav>
+
+    <section class="section">
+    <div class="container">
+    <article class="article content gallery" itemscope itemprop="blogPost">
+    <h1 class="article-title is-size-3 is-size-4-mobile" itemprop="name">
+        
+            梯度下降法
+        
+    </h1>
+    <div class="article-meta columns is-variable is-1 is-multiline is-mobile is-size-7-mobile">
+        <span class="column is-narrow">
+            <time datetime="2018-01-27T18:56:35.000Z" itemprop="datePublished">4 个月前</time>
+        </span>
+        
+        <span class="column is-narrow article-category">
+            <i class="far fa-folder"></i>
+            <a class="article-category-link" href="/categories/Deep-Learning/">Deep Learning</a>
+        </span>
+        
+        
+        <span class="column is-narrow">
+            
+            
+            11 分钟 读完 (约 1689 字)
+        </span>
+        
+    </div>
+    <div class="article-entry is-size-6-mobile" itemprop="articleBody">
+    
+        <p><strong>梯度下降法</strong>（Gradient descent）是一个一阶最优化算法，通常也称<strong>最速下降法</strong>。要使用梯度下降法找到一个函数的局部极小值，必须向函数上当前点对应梯度（或者是近似梯度）的反方向的规定步长距离点进行迭代搜索。如果相反地向梯度正方向迭代进行搜索，则会接近函数的局部极大值点，这个过程被称为<strong>梯度上升法</strong>。<br><a id="more"></a></p>
+<h4 id="描述"><a href="#描述" class="headerlink" title="描述"></a>描述</h4><p>梯度下降法基于以下的观察：如果实值函数 $F(x)$在点$a$处可微且有定义，那么函数$F(x)$在$a$点沿着梯度相反的方向$-\nabla F(a)$下降最快。</p>
+<p>因而，如果$b=a-\gamma \nabla F(a)$ ，对于$\gamma &gt;0$为一个够小数值时成立，那么$F(a)\geq F(b)$ 。</p>
+<p>考虑到这一点，我们可以从函数$F$代码局部极小值的初始估计$x_0$出发，并考虑如下序列$x_0, x_1, x_2, \ldots$使得$x_{n+1}=x_n - \gamma_n\nabla F(x_n), n\geq 0$ ，因此可得到$F(x_0)\ge F(x_1) \ge F(x_2) \ge \cdots$ 。</p>
+<p>如果顺利的话序列$(x_n)$收敛到期望的极值。每次的迭代步长$\gamma$可以改变。</p>
+<p>下面的图片示例了这一过程，这里假设$F$定义在平面上，并且函数图像是一个碗形。蓝色的曲线是等高线，即函数$F$为常数的集合构成的曲线。红色的箭头指向该点梯度的反方向。需要注意的是，某一点处的梯度方向与通过该点的等高线垂直。沿着梯度下降方向，将最终到达碗底，即函数$F$值最小的点。</p>
+<p><img src="C:\Users\97330\Pictures\Gradient_descent.png" alt="梯度下降示例" title="梯度下降示例"></p>
+<p>梯度下降法处理一些复杂的非线性函数会出现问题，例如Rosenbrock函数$f(x, y) =(1-x)^2 + 100(y-x^2)^2$ 。其最小值在$(x,y)=(1,1)$处，数值为$f(x,y)=0$。但是此函数具有狭窄弯曲的山谷，最小值$(x,y)=(1,1)$就在这些山谷之中，并且谷底很平。优化过程是之字形的向极小值点靠近，速度非常缓慢。利用梯度下降法求解需要很多次的迭代。</p>
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Banana-SteepDesc.gif/600px-Banana-SteepDesc.gif" alt="Rosenbrock函数下的优化过程" title="Rosenbrock函数下的优化过程"></p>
+<p>梯度下降法实现简单，当目标函数是凸函数时，梯度下降法的解是全局解。一般情况下，其解不保证是全局最优解，梯度下降法的速度也未必是最快的。梯度下降法的缺点包括：</p>
+<ul>
+<li>靠近极小值时速度减慢。</li>
+<li>直线搜索可能会产生一些问题。</li>
+<li>可能会“之字型”地下降。</li>
+</ul>
+<h2 id="Batch-Gradient-Descent"><a href="#Batch-Gradient-Descent" class="headerlink" title="Batch Gradient Descent"></a>Batch Gradient Descent</h2><p>在优化目标函数的时候，Batch Gradient Descent(BGD)是先计算<strong>整个</strong>数据集上的梯度，然后再进行更新操作。对于参数$\theta$来说，每更新一次其中的某一位权重$\theta_j$，BGD都需要遍历整个数据集。</p>
+<p>对于目标函数$h_θ(x)$用公式来表示就是$θ_j:=θ_j+\alpha \sum_{i=1}^m(y^i−h_θ(x^i))x_j^i$</p>
+<p>其中的$(y^i−h_θ(x^i))x^i_j$其实就是对于训练样例$x^i$的$j$属性的梯度，$m$是训练集的大小。从上式中可以看到，BGD是对整个数据集进行扫描，然后计算整体梯度($\sum$求和过程)，再进行更新。其实，这才是真正的梯度.</p>
+<p>BGD的优点在于对于凸问题，它是能够<strong>保证收敛到全局最优点</strong>的。而缺点就是，计算量很大，计算每一位的权重都要遍历整个数据集，这代价未免太大了，计算量是无法接受的。随之而来的另外一个缺点就是BGD是无法进行online训练的，它必须要知道全部的训练集的情况下才能进行训练，这对于一些线上系统也是一个问题。</p>
+<h2 id="Stochastic-Gradient-Descent"><a href="#Stochastic-Gradient-Descent" class="headerlink" title="Stochastic Gradient Descent"></a>Stochastic Gradient Descent</h2><p>SGD是对BGD的一个改进方案，改变之处在更新时不需要遍历整个数据集，而是<strong>每一个</strong>实例都进行更新。具体公式$θ_j:=θ_j+α(y^i−h_θ(x^i))x^i_j$</p>
+<p>比较上式和BGD的公式，我们可以发现区别就在省略了求和过程$\sum$，也就是说更新权重的时候，不需要计算整体的梯度，而是仅仅依靠当前实例的梯度进行更新。</p>
+<p>如此改变之后，速度明显提高了很多，但是这也是有风险的。由于进行频繁的梯度更新，很有可能直接跳过了最优点。因此，SGD实际上是无法保证收敛到全局最优点的，而且<strong>不</strong>是那么的<strong>稳定</strong>。</p>
+<h2 id="Mini-Batch-Gradient-Descent"><a href="#Mini-Batch-Gradient-Descent" class="headerlink" title="Mini-Batch Gradient Descent"></a>Mini-Batch Gradient Descent</h2><p>而Mini-Batch是对上述两种策略的一种中和，它的基本思想就是从整个训练集上选取一个<strong>子集</strong>，对这个自己进行BGD的更新。具体公式可以表示为:$θ_j:=θ_j+α\sum_{i=1}^n(y^i−h_θ(x^i))x^i_j$</p>
+<p>与BGD的式子相比，会发现唯一的区别在于求和时的项数不一样，此处的$n$不再是训练集的大小，而是一个小于或等于$m$的数，通常范围在于32-256（一般取2的整数幂）。</p>
+<p>简单来说，先把大小为$m$的训练集分为大小为$n$的$m_n$个子集（一般最后一个batch的样本个数小于$n$），每次读入一个子集进行梯度计算，更新权重。</p>
+<p>相比SGD来说，它更加稳定；相比BGD来说，它计算量较小。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><table>
+<thead>
+<tr>
+<th></th>
+<th>BGD</th>
+<th>SGD</th>
+<th>mini-Batch</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>训练集</td>
+<td>固定</td>
+<td>固定</td>
+<td>固定</td>
+</tr>
+<tr>
+<td>单次迭代样本数</td>
+<td>整个训练集</td>
+<td>固定</td>
+<td>训练集的子集</td>
+</tr>
+<tr>
+<td>算法复杂度</td>
+<td>高</td>
+<td>低</td>
+<td>一般</td>
+</tr>
+<tr>
+<td>收敛性</td>
+<td>稳定</td>
+<td>不稳定</td>
+<td>较稳定</td>
+</tr>
+</tbody>
+</table>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://zh.wikipedia.org/wiki/%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E6%B3%95" target="_blank" rel="noopener">梯度下降法wiki</a></p>
+<p><a href="http://zhouyichu.com/machine-learning/Three-Gradient-Descent/" target="_blank" rel="noopener">三种梯度下降法</a></p>
+<p><a href="http://blog.csdn.net/pipisorry/article/details/23692455" target="_blank" rel="noopener">最优化方法：梯度下降</a></p>
+
+    
+    </div>
+    
+    <div class="columns is-variable is-1 is-multiline is-mobile">
+    
+        <span class="column is-narrow"><a class="tag is-light article-tag" href="/tags/Gradient-descent/">#Gradient descent</a></span>
+    
+        <span class="column is-narrow"><a class="tag is-light article-tag" href="/tags/BGD/">#BGD</a></span>
+    
+        <span class="column is-narrow"><a class="tag is-light article-tag" href="/tags/SGD/">#SGD</a></span>
+    
+        <span class="column is-narrow"><a class="tag is-light article-tag" href="/tags/Mini-Batch/">#Mini-Batch</a></span>
+    
+    </div>
+    
+    
+    <div class="columns is-mobile is-multiline article-nav">
+        <span class="column is-12-mobile is-half-desktop  article-nav-prev">
+            
+            <a href="/2018/04/16/seq2seq中的beam search算法过程/">Beam Search算法过程</a>
+            
+        </span>
+        <span class="column is-12-mobile is-half-desktop  article-nav-next">
+            
+            <a href="/2018/01/06/OPTICS算法基础/">OPTICS算法基础</a>
+            
+        </span>
+    </div>
+    
+</article>
+
+
+
+
+    </div>
+</section>
+    <footer class="footer">
+    <div class="container">
+        <div class="columns content">
+            <div class="column is-narrow has-text-centered">
+                &copy; 2018 Joey Lee&nbsp;
+                Powered by <a href="http://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="http://github.com/ppoffice/hexo-theme-minos">Minos</a>
+            </div>
+            <div class="column is-hidden-mobile"></div>
+
+            
+            <div class="column is-narrow">
+                <div class="columns is-mobile is-multiline is-centered">
+                
+                    
+                <a class="column is-narrow has-text-black" href="https://github.com/bacterous">
+                    
+                    GitHub
+                    
+                </a>
+                
+                </div>
+            </div>
+            
+            
+        </div>
+    </div>
+</footer>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<!-- test if the browser is outdated -->
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/">Update my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="//cdnjs.cloudflare.com/ajax/libs/outdated-browser/1.1.5/outdatedbrowser.min.js"></script>
+<script>
+    $(document).ready(function () {
+        //plugin function, place inside DOM ready function
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        })
+    });
+</script>
+
+<script>
+    window.FontAwesomeConfig = {
+        searchPseudoElements: true
+    }
+</script>
+
+
+    
+    
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": {matchFontHeight: false},
+    SVG: {matchFontHeight: false},
+    CommonHTML: {matchFontHeight: false},
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      processEscapes: true
+    }
+  });
+</script>
+  <!-- Use cdnjs as CDN provider -->
+  <script type="text/javascript" async
+    src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
+  </script>
+
+
+    
+    
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightgallery/1.6.8/js/lightgallery-all.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.6.5/js/jquery.justifiedGallery.min.js"></script>
+<script>
+    (function ($) {
+        $(document).ready(function () {
+            if (typeof($.fn.lightGallery) === 'function') {
+                $('.article.gallery').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof($.fn.justifiedGallery) === 'function') {
+                $('.justified-gallery').justifiedGallery();
+            }
+        });
+    })(jQuery);
+</script>
+
+    
+    
+
+    
+
+
+<script src="/js/script.js"></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-mask"></div>
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="站内搜索" />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js"></script>
+    
+</body>
+</html>
