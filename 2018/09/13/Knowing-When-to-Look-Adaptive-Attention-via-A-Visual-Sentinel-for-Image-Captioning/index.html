@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html class="has-navbar-fixed-top">
+<head>
+    <meta charset="utf-8">
+<title>Knowing When to Look: Adaptive Attention via A Visual Sentinel for Image Captioning - 黎光</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/outdated-browser/1.1.5/outdatedbrowser.min.css">
+
+
+
+
+
+
+<link rel="icon" href="/favicon.png">
+
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Ovo|Source+Code+Pro">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightgallery/1.6.8/css/lightgallery.min.css">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.6.5/css/justifiedGallery.min.css">
+
+
+<link rel="stylesheet" href="/css/style.css">
+<script defer src="//use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
+
+</head>
+<body>
+    
+<nav class="navbar is-transparent is-fixed-top navbar-main" role="navigation" aria-label="main navigation">
+    <div class="container">
+        <div class="navbar-brand">
+            <a class="navbar-item navbar-logo" href="/">
+                
+                    
+                    黎光
+                    
+                
+            </a>
+            <div class="navbar-burger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+        
+        <div class="navbar-menu navbar-start">
+            
+            <a class="navbar-item "
+               href="/archives">Archives</a>
+            
+        </div>
+        
+        <div class="navbar-menu navbar-end">
+            
+            <a class="navbar-item search" href="javascript:;">
+                <i class="fas fa-search"></i>
+            </a>
+            
+            
+            
+            <a class="navbar-item" href="https://github.com/bacterous">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+               
+            
+        </div>
+    </div>
+</nav>
+
+    <section class="section">
+    <div class="container">
+    <article class="article content gallery" itemscope itemprop="blogPost">
+    <h1 class="article-title is-size-3 is-size-4-mobile" itemprop="name">
+        
+            Knowing When to Look: Adaptive Attention via A Visual Sentinel for Image Captioning
+        
+    </h1>
+    <div class="article-meta columns is-variable is-1 is-multiline is-mobile is-size-7-mobile">
+        <span class="column is-narrow">
+            <time datetime="2018-09-13T12:50:36.000Z" itemprop="datePublished">23 分钟前</time>
+        </span>
+        
+        <span class="column is-narrow article-category">
+            <i class="far fa-folder"></i>
+            <a class="article-category-link" href="/categories/Deep-Learning/">Deep Learning</a>
+        </span>
+        
+        
+        <span class="column is-narrow">
+            
+            
+            22 分钟 读完 (约 3365 字)
+        </span>
+        
+    </div>
+    <div class="article-entry is-size-6-mobile" itemprop="articleBody">
+    
+        <blockquote>
+<p>论文链接：<a href="https://arxiv.org/abs/1612.01887" target="_blank" rel="noopener">https://arxiv.org/abs/1612.01887</a></p>
+</blockquote>
+<h3 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h3><p>基于注意力的神经编码-译码框架（Attention-based neural encoder-decoder frameworks）已经在图像标注任务中广泛采用。大部分方法在生成词语时，强行令视觉注意信息发挥效力。然而，译码器在预测诸如“the”和“of”等“非视觉”（non-visual）词汇时，可能几乎不需要从图片中获取视觉信息。其它看上来像视觉词汇的词语，例如在“behind a  red stop”之后的“sign”，或者“talking on a cell”之后的“phone”，经常可依赖语言模型进行可靠的预测。在本文中，我们提出了一个新的带视觉哨兵（visual sentinel）的自适应注意力模型(adaptive attention model)。在预测的每一步，我们的 模型会决定是注意图像（如果是，具体到哪块区域），还是注意视觉哨兵。模型决定了是否要聚焦于图像以及其具体区域，以为序列词语的生成提取出有效信息。在COCO和Flickr30K上的测试结果显示，我们的方法以显著优势重置了新的state-of-the-art水准。</p>
+<a id="more"></a>
+<hr>
+<h3 id="1-Introduction"><a href="#1-Introduction" class="headerlink" title="1.  Introduction"></a>1.  Introduction</h3><p>自动生成图像标注问题，在学界和工业界已经成为一个著名的跨学科研究问题。它可以帮助视障人群，相对容易地去组织和浏览大量的典型非结构化的视觉数据。为了生成高质量的摘要，模型需要从图像中结合细粒度的视觉线索。最近，随着基于注意力的视觉神经编码-译码模型的研究，引入注意力机制，生成一个空间图（spatial map），标识了与每个生成的词语相关的图像区域。</p>
+<p>在图像标注与视觉问答任务中，大部分注意力模型在每一步预测时都在关注图像，根本不考虑下一个预测（emitted）的是哪个词。然而，标注里不是所有的词都有对应的视觉信息。拿图1中的例子来说，所示图像生成的标注为“A white bird perched on top of a red stop sign”。“a”和“of”没有对应的典型视觉信息。另外，在生成诸如跟在“perched”之后的“on”和“top”时，或者跟在“a red stop”之后的“sign”时，语言之间的关联性会使预测过程不怎么需要视觉信息。事实上，非视觉词汇的梯度，会误导和减弱视觉信息在控制标注语句生成过程的整体效果。</p>
+<p>在本文中，我们提出了一个自适应注意力编码-译码框架，能够自动决定何时依赖视觉信息、何时依赖语言模型。当然，在依赖视觉信息时，模型也决定了具体应该关注图像的哪块区域。为了提取空间图像特征，我们首次提出了一个新型的空间关注模型。然后，正如我们提出的自适应注意力机制，我们采用了一个新的LSTM扩展方法，能够生成一个额外的视觉哨兵向量，而不是一个单一的隐藏状态。视觉哨兵是一个额外的对译码器存储的隐式表示，为译码器提供了一个回退选项。我们进一步设计了一个新的哨兵门（sentinel gate），决定了译码器在生成下一词语时从图像中获取信息的多寡，而不是依赖视觉哨兵。例如图1所示，我们的模型在生成诸如“white”、“bird”、“red”和“stop”的词语时，更多地关注图像；在生成诸如“top”、“of”和“sign”时，更多地依赖视觉哨兵。</p>
+<p>总的来说，本文的主要贡献如下：</p>
+<ul>
+<li>我们提出了一个自适应编码-译码框架，在生成词语时自动决定何时关注图像，何时依赖语言模型；</li>
+<li>我们首次提出了一个新的空间关注模型，并依赖它来设计了我们带视觉哨兵的新型自适应注意力模型；</li>
+<li>在COCO和Flicker30K上，我们的模型明显优于其它state-of-the-art方法；</li>
+<li>对我们自适应注意力模型我们做了扩展分析，包括词语的视觉基础概率（visual grounding probabilities）和生成的注意力图（attention maps）的弱监督定位（weakly supervised localization）。</li>
+</ul>
+<h3 id="2-Method"><a href="#2-Method" class="headerlink" title="2. Method"></a>2. Method</h3><p>在2.1节，首先介绍了图像标注问题的普通神经编码-译码框架。在2.2和2.3节中介绍我们提出的基于注意力的图像标注模型</p>
+<h4 id="2-1-Encoder-Decodedr-for-Image-Captioning"><a href="#2-1-Encoder-Decodedr-for-Image-Captioning" class="headerlink" title="2.1. Encoder-Decodedr for Image Captioning"></a>2.1. Encoder-Decodedr for Image Captioning</h4><p>我们先简要描述编码-译码图像标注框架。在给定图像和其对应标注的情况下，编码-译码模型直接最大化下式的目标：<br>$$<br>\theta ^ * = arg max_\theta \sum_{(I,y)}\log p(y|I;\theta)<br>$$<br>其中$\theta$是模型的参数，$I$为图像，$y =\{y_1,\dots,y_t\}$是对应的标注。使用链式法则，联合概率分布的数似然可以分解成有序的条件概率：<br>$$<br>\log p(y)=\sum^T_{t=1}\log p(y_t|y_1,\dots,y_{t-1},I)<br>$$<br>为了方便起见，我们丢弃了对模型参数的依赖。</p>
+<p>在编码-译码框架中，RNN网络下，每个条件概率定义如下：<br>$$<br>\log p(y_t|y_1,\dots,y_{t-1},I)=f(h_t, c_t)<br>$$<br>其中$f$是一个非线性函数，输出概率$y_t$ 。$c_t$是$t$时刻从图像$I$中提取的视觉上下文（visual context）向，$h_t$是RNN在$t$时刻隐藏状态。本文的RNN采用了LSTM，在各种序列模型任务中已被证明有着不错（state-of-the-art）的表现。$h_t$定义为：<br>$$<br>h_t=LSTM(x_t,h_{t-1},m_{t-1})<br>$$<br>其中$x_t$是输入向量，$m_{t-1}$是$t-1$时刻的存储单元向量。</p>
+<p>一般来讲，上下文向量$c_t$在神经编码-译码框架中是个重要因素，为标注生成提供了视觉依据。构建上下文向量的不同方法就划分出：普通编码-译码结构和基于注意力的编码译码框架：</p>
+<ul>
+<li>首先，在普通的编码-译码框架中，$c_t $仅依赖于编码器CNN。输入图像$I$被输入CNN网络，将最后一个全连接层提取作为整体图像的特征。在生成词语的整个过程中，上下文向量$c_t$保持不变，也不依赖于译码器的隐藏状态。</li>
+<li>然后在基于注意力的框架中，$c_t$同时依赖编码器和译码器。在$t$时刻，在隐藏状态的基础上，译码器能够关注图像的特定区域，并利用CNN网络中的一个卷积层的空间图像特征来计算$c_t$。注意力模型能明显提升图像标注的性能。</li>
+</ul>
+<p>为了计算上下文向量$c_t$，在2.2节首先提出我们的空间注意力模型，之后在2.3节扩展模型，构建自适应的注意力模型。</p>
+<h4 id="2-2-Spatial-Attention-Model"><a href="#2-2-Spatial-Attention-Model" class="headerlink" title="2.2. Spatial Attention Model"></a>2.2. Spatial Attention Model</h4><p>首先，为了计算上下文向量 $c_t$提出了一个空间注意力模型，定义如下：<br>$$<br>c_t = g(V,h_t)<br>$$<br>其中$g$是注意力函数，$V=[v_1,\dots,v_k],v_i\in {R}^d$是空间图像特征，每个都是对对应图像部分的$d$维表示。$h_t$是RNN在$t$时刻的隐藏状态。</p>
+<p>给定空间图像特征$V\in { R}^{d \times k}$和LSTM的隐藏状态$h_t\in { R}^d$，我们将其供给一个单层神经网络，在其后连接了一个softmax函数，这样就生成了图像$k$个区域的注意力分布：<br>$$<br>z_t=w^T_h tanh(W_vV+(W_gh_t){\mathbb{I}^T })<br>$$</p>
+<p>$$<br>\alpha_t=softmax(z_t)<br>$$</p>
+<p>其中$\mathbb{I} \in { R}^k$是所有元素都为$1$的向量，$W_v,W_g\in{ R}^{k\times d}$和$w_h\in{ R}^k$为要训练的参数，$\alpha \in{ R}^k$是$V$中特征的注意力权重。在得到注意力分布的基础上，上下文向量$c_t$可由下式得到：<br>$$<br>c_t=\sum_{i=1}^k\alpha_{t_i}v_{t_i}<br>$$<br>然后便可利用式3来结合$c_t$和$h_t$，去预测下一个词语$y_{t+1}$。</p>
+<p>不同于《Show, attend and tell: Neural image caption generation with visual attention》一文提出的结构，如图2所示，我们利用当前的隐藏状态$h_t$来判断看向哪（如：生成上下文向量$c_t$），然后结合两者信息来预测下一个词语。我们这样设计是由于《Deep captioning with multimodal recurrent neural networks》一文中显示的残差网络（residual network）的优越性能。生成的上下文向量$c_t$可被看作当前隐藏状态$h_t$的剩余视觉信息（residual visual information），削弱了不确定性并为预测下一词语补充了当前隐藏状态的信息量。由实验结果来看（如表1所示），我们的空间注意力模型性能更优。</p>
+<h3 id="2-3-Adaptive-Attention-Model"><a href="#2-3-Adaptive-Attention-Model" class="headerlink" title="2.3. Adaptive Attention Model"></a>2.3. Adaptive Attention Model</h3><p>在基于空间注意力的译码器被证明在图像标注问题上有效之后，它还不能决定何时依赖视觉信息，何时依赖语言模型。在这一节，受《Pointer sentinel mixture models》一文启发，我们提出了一个新概念——视觉哨兵， 潜在表示了译码器已经知道的信息。利用视觉哨兵，我们扩展了空间注意力模型，并提出了一个自适应模型，在预测下一词语时能够决定是否需要关注图像。</p>
+<p>什么是视觉哨兵呢？译码器的存储区保存了长期和短期内的视觉和语义信息，我们的模型学习从这些信息中提取一个新的组件（component）。当选择不关注图像时，模型可以回退。这个新的组件就被称为视觉哨兵，决定是关注图像信息还是视觉哨兵的门就是哨兵门。当译码器RNN是LSTM时，我们认为这些信息保留在了它的存储细胞元中，因此，为了得到视觉哨兵向量$s_t$，我们将LSTM作以下扩展：<br>$$<br>g_t=\sigma (W_xx_t+W_hh_{t-1})<br>$$</p>
+<p>$$<br>s_t=g_t\bigodot \tanh(m_t)<br>$$</p>
+<p>其中，$W_x$和$W_h$是要训练的权重参数，$x_t$是$t$时刻LSTM的输入，$g_t$是在存储单元$m_t$上的控制门。$\sigma$表示经过logistic sigmoid激活操作，$\bigodot$表示元素积操作。</p>
+<p>基于视觉哨兵，我们提出了一个自适应注意力模型来计算上下文向量。在我们提出的架构（见图3），我们新的自适应上下文向量定义为$\hat c_t$，由模型生成，是空间注意力图像特征（如空间注意力模型的上下文向量）和视觉哨兵向量的结合。译码器存储中已知不少信息（如视觉哨兵），网络需要考虑到底从图像中获取多少新信息，上下文向量就权衡了这个问题。组成方式定义如下：<br>$$<br>\hat c_t=\beta_ts_t+(1-\beta_t)c_t<br>$$<br>其中，$\beta_t$是$t$时刻新的哨兵门。在结合模型中（mixture model）中， $\beta_t$生成一个$[0,1]$之间的标量。当取值为$1$时，表示在生成下一词语时，只使用视觉哨兵信息；当值为0时，只使用空间图像信息。</p>
+<p>为了计算新的哨兵门$\beta_t $，我们修改了空间注意力模块。特别的，我们向由式6定义的，表示注意力scores的向量$z$添加一额外元素。这一元素阐明了有多少网络的注意力放在了哨兵（与图像特征相比）。添加这个额外元素的过程，是将式7转变为：<br>$$<br>\hat \alpha_t = softmax([z_t;w^T_h \tanh(W_ss_t+(W_gh_t))])<br>$$<br>其中$[\cdot;\cdot]$表示连接运算，$W_s$和$W_g$是权重参数。特别的，$W_g$同式6是相同的权重参数。$\hat \alpha_t\in {R}^{k+1}$是基于空间图像特征和视觉哨兵向量得到的注意力分布</p>
+
+    
+    </div>
+    
+    <div class="columns is-variable is-1 is-multiline is-mobile">
+    
+        <span class="column is-narrow"><a class="tag is-light article-tag" href="/tags/attention/">#attention</a></span>
+    
+        <span class="column is-narrow"><a class="tag is-light article-tag" href="/tags/LSTM/">#LSTM</a></span>
+    
+    </div>
+    
+    
+    <div class="columns is-mobile is-multiline article-nav">
+        <span class="column is-12-mobile is-half-desktop  article-nav-prev">
+            
+            <a href="/2018/09/13/LightGBM使用/">LightGBM使用</a>
+            
+        </span>
+        <span class="column is-12-mobile is-half-desktop  article-nav-next">
+            
+            <a href="/2018/05/22/Restricted Boltzmann Machine/">Restricted Boltzmann Machine</a>
+            
+        </span>
+    </div>
+    
+</article>
+
+
+
+
+    </div>
+</section>
+    <footer class="footer">
+    <div class="container">
+        <div class="columns content">
+            <div class="column is-narrow has-text-centered">
+                &copy; 2018 Joey Lee&nbsp;
+                Powered by <a href="http://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="http://github.com/ppoffice/hexo-theme-minos">Minos</a>
+            </div>
+            <div class="column is-hidden-mobile"></div>
+
+            
+            <div class="column is-narrow">
+                <div class="columns is-mobile is-multiline is-centered">
+                
+                    
+                <a class="column is-narrow has-text-black" href="https://github.com/bacterous">
+                    
+                    GitHub
+                    
+                </a>
+                
+                </div>
+            </div>
+            
+            
+        </div>
+    </div>
+</footer>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<!-- test if the browser is outdated -->
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/">Update my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="//cdnjs.cloudflare.com/ajax/libs/outdated-browser/1.1.5/outdatedbrowser.min.js"></script>
+<script>
+    $(document).ready(function () {
+        //plugin function, place inside DOM ready function
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        })
+    });
+</script>
+
+<script>
+    window.FontAwesomeConfig = {
+        searchPseudoElements: true
+    }
+</script>
+
+
+    
+    
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": {matchFontHeight: false},
+    SVG: {matchFontHeight: false},
+    CommonHTML: {matchFontHeight: false},
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      processEscapes: true
+    }
+  });
+</script>
+  <!-- Use cdnjs as CDN provider -->
+  <script type="text/javascript" async
+    src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
+  </script>
+
+
+    
+    
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightgallery/1.6.8/js/lightgallery-all.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.6.5/js/jquery.justifiedGallery.min.js"></script>
+<script>
+    (function ($) {
+        $(document).ready(function () {
+            if (typeof($.fn.lightGallery) === 'function') {
+                $('.article.gallery').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof($.fn.justifiedGallery) === 'function') {
+                $('.justified-gallery').justifiedGallery();
+            }
+        });
+    })(jQuery);
+</script>
+
+    
+    
+
+    
+
+
+<script src="/js/script.js"></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-mask"></div>
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="站内搜索" />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js"></script>
+    
+</body>
+</html>

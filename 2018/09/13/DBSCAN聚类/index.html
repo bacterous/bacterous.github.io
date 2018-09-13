@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html class="has-navbar-fixed-top">
+<head>
+    <meta charset="utf-8">
+<title>DBSCAN聚类 - 黎光</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/outdated-browser/1.1.5/outdatedbrowser.min.css">
+
+
+
+
+
+
+<link rel="icon" href="/favicon.png">
+
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Ovo|Source+Code+Pro">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightgallery/1.6.8/css/lightgallery.min.css">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.6.5/css/justifiedGallery.min.css">
+
+
+<link rel="stylesheet" href="/css/style.css">
+<script defer src="//use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
+
+</head>
+<body>
+    
+<nav class="navbar is-transparent is-fixed-top navbar-main" role="navigation" aria-label="main navigation">
+    <div class="container">
+        <div class="navbar-brand">
+            <a class="navbar-item navbar-logo" href="/">
+                
+                    
+                    黎光
+                    
+                
+            </a>
+            <div class="navbar-burger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+        
+        <div class="navbar-menu navbar-start">
+            
+            <a class="navbar-item "
+               href="/archives">Archives</a>
+            
+        </div>
+        
+        <div class="navbar-menu navbar-end">
+            
+            <a class="navbar-item search" href="javascript:;">
+                <i class="fas fa-search"></i>
+            </a>
+            
+            
+            
+            <a class="navbar-item" href="https://github.com/bacterous">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+               
+            
+        </div>
+    </div>
+</nav>
+
+    <section class="section">
+    <div class="container">
+    <article class="article content gallery" itemscope itemprop="blogPost">
+    <h1 class="article-title is-size-3 is-size-4-mobile" itemprop="name">
+        
+            DBSCAN聚类
+        
+    </h1>
+    <div class="article-meta columns is-variable is-1 is-multiline is-mobile is-size-7-mobile">
+        <span class="column is-narrow">
+            <time datetime="2018-09-13T13:04:09.000Z" itemprop="datePublished">10 分钟前</time>
+        </span>
+        
+        <span class="column is-narrow article-category">
+            <i class="far fa-folder"></i>
+            <a class="article-category-link" href="/categories/Machine-Learning/">Machine Learning</a>
+        </span>
+        
+        
+        <span class="column is-narrow">
+            
+            
+            19 分钟 读完 (约 2847 字)
+        </span>
+        
+    </div>
+    <div class="article-entry is-size-6-mobile" itemprop="articleBody">
+    
+        <p>DBSCAN(Density-Based Spatial Clustering of Applications with Noise，具有噪声的基于密度的聚类方法)是一种很典型的密度聚类算法，和K-Means，BIRCH这些一般只适用于凸样本集的聚类相比，DBSCAN既可以适用于凸样本集，也可以适用于非凸样本集。下面我们就对DBSCAN算法的原理做一个总结。</p>
+<a id="more"></a>
+<h3 id="1-密度聚类原理"><a href="#1-密度聚类原理" class="headerlink" title="1. 密度聚类原理"></a>1. 密度聚类原理</h3><p>DBSCAN是一种基于密度的聚类算法，这类密度聚类算法一般假定类别可以通过样本分布的紧密程度决定。同一类别的样本，他们之间的紧密相连的，也就是说，在该类别任意样本周围不远处一定有同类别的样本存在。</p>
+<p>通过将紧密相连的样本划为一类，这样就得到了一个聚类类别。通过将所有各组紧密相连的样本划为各个不同的类别，则我们就得到了最终的所有聚类类别结果。</p>
+<h3 id="2-DBSCAN密度定义"><a href="#2-DBSCAN密度定义" class="headerlink" title="2. DBSCAN密度定义"></a>2. DBSCAN密度定义</h3><p>在上一节我们定性描述了密度聚类的基本思想，本节我们就看看DBSCAN是如何描述密度聚类的。DBSCAN是基于一组邻域来描述样本集的紧密程度的，参数(ϵϵ, MinPts)用来描述邻域的样本分布紧密程度。其中，ϵϵ描述了某一样本的邻域距离阈值，MinPts描述了某一样本的距离为ϵϵ的邻域中样本个数的阈值。</p>
+<p>假设我的样本集是D=(x1,x2,…,xm)(x1,x2,…,xm),则DBSCAN具体的密度描述定义如下：</p>
+<p>1） ϵϵ-邻域：对于xj∈Dxj∈D，其ϵϵ-邻域包含样本集D中与xjxj的距离不大于ϵϵ的子样本集，即Nϵ(xj)={xi∈D|distance(xi,xj)≤ϵ}Nϵ(xj)={xi∈D|distance(xi,xj)≤ϵ}, 这个子样本集的个数记为|Nϵ(xj)||Nϵ(xj)|　</p>
+<p>2) 核心对象：对于任一样本xj∈Dxj∈D，如果其ϵϵ-邻域对应的Nϵ(xj)Nϵ(xj)至少包含MinPts个样本，即如果|Nϵ(xj)|≥MinPts|Nϵ(xj)|≥MinPts，则xjxj是核心对象。　</p>
+<p>3）密度直达：如果xixi位于xjxj的ϵϵ-邻域中，且xjxj是核心对象，则称xixi由xjxj密度直达。注意反之不一定成立，即此时不能说xjxj由xixi密度直达, 除非且xixi也是核心对象。</p>
+<p>4）密度可达：对于xixi和xjxj,如果存在样本样本序列p1,p2,…,pTp1,p2,…,pT,满足p1=xi,pT=xjp1=xi,pT=xj, 且pt+1pt+1由ptpt密度直达，则称xjxj由xixi密度可达。也就是说，密度可达满足传递性。此时序列中的传递样本p1,p2,…,pT−1p1,p2,…,pT−1均为核心对象，因为只有核心对象才能使其他样本密度直达。注意密度可达也不满足对称性，这个可以由密度直达的不对称性得出。</p>
+<p>5）密度相连：对于xixi和xjxj,如果存在核心对象样本xkxk，使xixi和xjxj均由xkxk密度可达，则称xixi和xjxj密度相连。注意密度相连关系是满足对称性的。</p>
+<p>从下图可以很容易看出理解上述定义，图中MinPts=5，红色的点都是核心对象，因为其ϵϵ-邻域至少有5个样本。黑色的样本是非核心对象。所有核心对象密度直达的样本在以红色核心对象为中心的超球体内，如果不在超球体内，则不能密度直达。图中用绿色箭头连起来的核心对象组成了密度可达的样本序列。在这些密度可达的样本序列的ϵϵ-邻域内所有的样本相互都是密度相连的。</p>
+<p><img src="https://images2015.cnblogs.com/blog/1042406/201612/1042406-20161222112847323-1346197243.png" alt="img"></p>
+<p>有了上述定义，DBSCAN的聚类定义就简单了。</p>
+<h3 id="3-DBSCAN密度聚类思想"><a href="#3-DBSCAN密度聚类思想" class="headerlink" title="3. DBSCAN密度聚类思想"></a>3. DBSCAN密度聚类思想</h3><p>DBSCAN的聚类定义很简单：由密度可达关系导出的最大密度相连的样本集合，即为我们最终聚类的一个类别，或者说一个簇。</p>
+<p>这个DBSCAN的簇里面可以有一个或者多个核心对象。如果只有一个核心对象，则簇里其他的非核心对象样本都在这个核心对象的ϵϵ-邻域里；如果有多个核心对象，则簇里的任意一个核心对象的ϵϵ-邻域中一定有一个其他的核心对象，否则这两个核心对象无法密度可达。这些核心对象的ϵϵ-邻域里所有的样本的集合组成的一个DBSCAN聚类簇。</p>
+<p>那么怎么才能找到这样的簇样本集合呢？DBSCAN使用的方法很简单，它任意选择一个没有类别的核心对象作为种子，然后找到所有这个核心对象能够密度可达的样本集合，即为一个聚类簇。接着继续选择另一个没有类别的核心对象去寻找密度可达的样本集合，这样就得到另一个聚类簇。一直运行到所有核心对象都有类别为止。</p>
+<p>基本上这就是DBSCAN算法的主要内容了，是不是很简单？但是我们还是有三个问题没有考虑。</p>
+<p>第一个是一些异常样本点或者说少量游离于簇外的样本点，这些点不在任何一个核心对象在周围，在DBSCAN中，我们一般将这些样本点标记为噪音点。</p>
+<p>第二个是距离的度量问题，即如何计算某样本和核心对象样本的距离。在DBSCAN中，一般采用最近邻思想，采用某一种距离度量来衡量样本距离，比如欧式距离。这和KNN分类算法的最近邻思想完全相同。对应少量的样本，寻找最近邻可以直接去计算所有样本的距离，如果样本量较大，则一般采用KD树或者球树来快速的搜索最近邻。如果大家对于最近邻的思想，距离度量，KD树和球树不熟悉，建议参考之前写的另一篇文章<a href="http://www.cnblogs.com/pinard/p/6061661.html" target="_blank" rel="noopener">K近邻法(KNN)原理小结</a>。</p>
+<p>第三种问题比较特殊，某些样本可能到两个核心对象的距离都小于ϵϵ，但是这两个核心对象由于不是密度直达，又不属于同一个聚类簇，那么如果界定这个样本的类别呢？一般来说，此时DBSCAN采用先来后到，先进行聚类的类别簇会标记这个样本为它的类别。也就是说BDSCAN的算法不是完全稳定的算法。</p>
+<h3 id="4-DBSCAN聚类算法"><a href="#4-DBSCAN聚类算法" class="headerlink" title="4. DBSCAN聚类算法"></a>4. DBSCAN聚类算法</h3><p>下面我们对DBSCAN聚类算法的流程做一个总结。</p>
+<p>输入：样本集D=(x1,x2,…,xm)(x1,x2,…,xm)，邻域参数(ϵ,MinPts)(ϵ,MinPts), 样本距离度量方式</p>
+<p>输出： 簇划分C.　</p>
+<p>1）初始化核心对象集合Ω=∅Ω=∅, 初始化聚类簇数k=0，初始化未访问样本集合ΓΓ = D,  簇划分C = ∅∅</p>
+<p>2) 对于j=1,2,…m, 按下面的步骤找出所有的核心对象：</p>
+<p>a) 通过距离度量方式，找到样本xjxj的ϵϵ-邻域子样本集Nϵ(xj)Nϵ(xj)</p>
+<p>b) 如果子样本集样本个数满足|Nϵ(xj)|≥MinPts|Nϵ(xj)|≥MinPts， 将样本xjxj加入核心对象样本集合：Ω=Ω∪{xj}Ω=Ω∪{xj}</p>
+<p>3）如果核心对象集合Ω=∅Ω=∅，则算法结束，否则转入步骤4.</p>
+<p>4）在核心对象集合ΩΩ中，随机选择一个核心对象oo，初始化当前簇核心对象队列Ωcur={o}Ωcur={o}, 初始化类别序号k=k+1，初始化当前簇样本集合Ck={o}Ck={o}, 更新未访问样本集合Γ=Γ−{o}Γ=Γ−{o}</p>
+<p>5）如果当前簇核心对象队列Ωcur=∅Ωcur=∅，则当前聚类簇CkCk生成完毕, 更新簇划分C={C1,C2,…,Ck}{C1,C2,…,Ck}, 更新核心对象集合Ω=Ω−CkΩ=Ω−Ck， 转入步骤3。</p>
+<p>6）在当前簇核心对象队列ΩcurΩcur中取出一个核心对象o′o′,通过邻域距离阈值ϵϵ找出所有的ϵϵ-邻域子样本集Nϵ(o′)Nϵ(o′)，令Δ=Nϵ(o′)∩ΓΔ=Nϵ(o′)∩Γ, 更新当前簇样本集合Ck=Ck∪ΔCk=Ck∪Δ, 更新未访问样本集合Γ=Γ−ΔΓ=Γ−Δ,  更新Ωcur=Ωcur∪(Nϵ(o′)∩Ω)Ωcur=Ωcur∪(Nϵ(o′)∩Ω)，转入步骤5.</p>
+<p>输出结果为： 簇划分C={C1,C2,…,Ck}{C1,C2,…,Ck}</p>
+<h3 id="5-DBSCAN小结"><a href="#5-DBSCAN小结" class="headerlink" title="5. DBSCAN小结"></a>5. DBSCAN小结</h3><p>和传统的K-Means算法相比，DBSCAN最大的不同就是不需要输入类别数k，当然它最大的优势是可以发现任意形状的聚类簇，而不是像K-Means，一般仅仅使用于凸的样本集聚类。同时它在聚类的同时还可以找出异常点，这点和BIRCH算法类似。</p>
+<p>那么我们什么时候需要用DBSCAN来聚类呢？一般来说，如果数据集是稠密的，并且数据集不是凸的，那么用DBSCAN会比K-Means聚类效果好很多。如果数据集不是稠密的，则不推荐用DBSCAN来聚类。</p>
+<p>下面对DBSCAN算法的优缺点做一个总结。</p>
+<p>DBSCAN的主要优点有：</p>
+<p>1） 可以对任意形状的稠密数据集进行聚类，相对的，K-Means之类的聚类算法一般只适用于凸数据集。</p>
+<p>2） 可以在聚类的同时发现异常点，对数据集中的异常点不敏感。</p>
+<p>3） 聚类结果没有偏倚，相对的，K-Means之类的聚类算法初始值对聚类结果有很大影响。</p>
+<p>DBSCAN的主要缺点有：</p>
+<p>1）如果样本集的密度不均匀、聚类间距差相差很大时，聚类质量较差，这时用DBSCAN聚类一般不适合。</p>
+<p>2） 如果样本集较大时，聚类收敛时间较长，此时可以对搜索最近邻时建立的KD树或者球树进行规模限制来改进。</p>
+<p>3） 调参相对于传统的K-Means之类的聚类算法稍复杂，主要需要对距离阈值ϵϵ，邻域样本数阈值MinPts联合调参，不同的参数组合对最后的聚类效果有较大影响。</p>
+
+    
+    </div>
+    
+    <div class="columns is-variable is-1 is-multiline is-mobile">
+    
+        <span class="column is-narrow"><a class="tag is-light article-tag" href="/tags/cluster/">#cluster</a></span>
+    
+    </div>
+    
+    
+    <div class="columns is-mobile is-multiline article-nav">
+        <span class="column is-12-mobile is-half-desktop is-hidden-mobile article-nav-prev">
+            
+        </span>
+        <span class="column is-12-mobile is-half-desktop  article-nav-next">
+            
+            <a href="/2018/09/13/TF-IDF原理/">TF-IDF原理</a>
+            
+        </span>
+    </div>
+    
+</article>
+
+
+
+
+    </div>
+</section>
+    <footer class="footer">
+    <div class="container">
+        <div class="columns content">
+            <div class="column is-narrow has-text-centered">
+                &copy; 2018 Joey Lee&nbsp;
+                Powered by <a href="http://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="http://github.com/ppoffice/hexo-theme-minos">Minos</a>
+            </div>
+            <div class="column is-hidden-mobile"></div>
+
+            
+            <div class="column is-narrow">
+                <div class="columns is-mobile is-multiline is-centered">
+                
+                    
+                <a class="column is-narrow has-text-black" href="https://github.com/bacterous">
+                    
+                    GitHub
+                    
+                </a>
+                
+                </div>
+            </div>
+            
+            
+        </div>
+    </div>
+</footer>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<!-- test if the browser is outdated -->
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/">Update my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="//cdnjs.cloudflare.com/ajax/libs/outdated-browser/1.1.5/outdatedbrowser.min.js"></script>
+<script>
+    $(document).ready(function () {
+        //plugin function, place inside DOM ready function
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        })
+    });
+</script>
+
+<script>
+    window.FontAwesomeConfig = {
+        searchPseudoElements: true
+    }
+</script>
+
+
+    
+    
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": {matchFontHeight: false},
+    SVG: {matchFontHeight: false},
+    CommonHTML: {matchFontHeight: false},
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      processEscapes: true
+    }
+  });
+</script>
+  <!-- Use cdnjs as CDN provider -->
+  <script type="text/javascript" async
+    src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
+  </script>
+
+
+    
+    
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightgallery/1.6.8/js/lightgallery-all.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.6.5/js/jquery.justifiedGallery.min.js"></script>
+<script>
+    (function ($) {
+        $(document).ready(function () {
+            if (typeof($.fn.lightGallery) === 'function') {
+                $('.article.gallery').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof($.fn.justifiedGallery) === 'function') {
+                $('.justified-gallery').justifiedGallery();
+            }
+        });
+    })(jQuery);
+</script>
+
+    
+    
+
+    
+
+
+<script src="/js/script.js"></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-mask"></div>
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="站内搜索" />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js"></script>
+    
+</body>
+</html>

@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html class="has-navbar-fixed-top">
+<head>
+    <meta charset="utf-8">
+<title>LightGBM使用 - 黎光</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/outdated-browser/1.1.5/outdatedbrowser.min.css">
+
+
+
+
+
+
+<link rel="icon" href="/favicon.png">
+
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Ovo|Source+Code+Pro">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightgallery/1.6.8/css/lightgallery.min.css">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.6.5/css/justifiedGallery.min.css">
+
+
+<link rel="stylesheet" href="/css/style.css">
+<script defer src="//use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
+
+</head>
+<body>
+    
+<nav class="navbar is-transparent is-fixed-top navbar-main" role="navigation" aria-label="main navigation">
+    <div class="container">
+        <div class="navbar-brand">
+            <a class="navbar-item navbar-logo" href="/">
+                
+                    
+                    黎光
+                    
+                
+            </a>
+            <div class="navbar-burger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+        
+        <div class="navbar-menu navbar-start">
+            
+            <a class="navbar-item "
+               href="/archives">Archives</a>
+            
+        </div>
+        
+        <div class="navbar-menu navbar-end">
+            
+            <a class="navbar-item search" href="javascript:;">
+                <i class="fas fa-search"></i>
+            </a>
+            
+            
+            
+            <a class="navbar-item" href="https://github.com/bacterous">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+               
+            
+        </div>
+    </div>
+</nav>
+
+    <section class="section">
+    <div class="container">
+    <article class="article content gallery" itemscope itemprop="blogPost">
+    <h1 class="article-title is-size-3 is-size-4-mobile" itemprop="name">
+        
+            LightGBM使用
+        
+    </h1>
+    <div class="article-meta columns is-variable is-1 is-multiline is-mobile is-size-7-mobile">
+        <span class="column is-narrow">
+            <time datetime="2018-09-13T12:54:43.000Z" itemprop="datePublished">19 分钟前</time>
+        </span>
+        
+        <span class="column is-narrow article-category">
+            <i class="far fa-folder"></i>
+            <a class="article-category-link" href="/categories/Machine-Learning/">Machine Learning</a>
+        </span>
+        
+        
+        <span class="column is-narrow">
+            
+            
+            22 分钟 读完 (约 3286 字)
+        </span>
+        
+    </div>
+    <div class="article-entry is-size-6-mobile" itemprop="articleBody">
+    
+        <p>xgboost的出现，让数据民工们告别了传统的机器学习算法们：RF、GBM、SVM、LASSO……..。微软推出了一个新的boosting框架，想要挑战xgboost的江湖地位。</p>
+<p>顾名思义，lightGBM包含两个关键点：light即轻量级，GBM 梯度提升机。</p>
+<a id="more"></a>
+<p>LightGBM 是一个梯度 boosting 框架，使用基于学习算法的决策树。它可以说是分布式的，高效的，有以下优势：</p>
+<ul>
+<li>更快的训练效率</li>
+<li>低内存使用</li>
+<li>更高的准确率</li>
+<li>支持并行化学习</li>
+<li>可处理大规模数据</li>
+</ul>
+<h2 id="xgboost缺点"><a href="#xgboost缺点" class="headerlink" title="xgboost缺点"></a>xgboost缺点</h2><p>其缺点，或者说不足之处：</p>
+<p>每轮迭代时，都需要遍历整个训练数据多次。如果把整个训练数据装进内存则会限制训练数据的大小；如果不装进内存，反复地读写训练数据又会消耗非常大的时间。</p>
+<p>预排序方法（pre-sorted）：首先，空间消耗大。这样的算法需要保存数据的特征值，还保存了特征排序的结果（例如排序后的索引，为了后续快速的计算分割点），这里需要消耗训练数据两倍的内存。其次时间上也有较大的开销，在遍历每一个分割点的时候，都需要进行分裂增益的计算，消耗的代价大。</p>
+<p>对cache优化不友好。在预排序后，特征对梯度的访问是一种随机访问，并且不同的特征访问的顺序不一样，无法对cache进行优化。同时，在每一层长树的时候，需要随机访问一个行索引到叶子索引的数组，并且不同特征访问的顺序也不一样，也会造成较大的cache miss。</p>
+<h2 id="lightGBM特点"><a href="#lightGBM特点" class="headerlink" title="lightGBM特点"></a>lightGBM特点</h2><p>以上与其说是xgboost的不足，倒不如说是lightGBM作者们构建新算法时着重瞄准的点。解决了什么问题，那么原来模型没解决就成了原模型的缺点。</p>
+<p>概括来说，lightGBM主要有以下特点：</p>
+<ul>
+<li>基于Histogram的决策树算法</li>
+<li>带深度限制的Leaf-wise的叶子生长策略</li>
+<li>直方图做差加速</li>
+<li>直接支持类别特征(Categorical Feature)</li>
+<li>Cache命中率优化</li>
+<li>基于直方图的稀疏特征优化</li>
+<li>多线程优化</li>
+</ul>
+<p>前2个特点使我们尤为关注的。</p>
+<p><strong>Histogram算法</strong></p>
+<p>直方图算法的基本思想：先把连续的浮点特征值离散化成k个整数，同时构造一个宽度为k的直方图。遍历数据时，根据离散化后的值作为索引在直方图中累积统计量，当遍历一次数据后，直方图累积了需要的统计量，然后根据直方图的离散值，遍历寻找最优的分割点。</p>
+<p><strong>带深度限制的Leaf-wise的叶子生长策略</strong></p>
+<p>Level-wise过一次数据可以同时分裂同一层的叶子，容易进行多线程优化，也好控制模型复杂度，不容易过拟合。但实际上Level-wise是一种低效算法，因为它不加区分的对待同一层的叶子，带来了很多没必要的开销，因为实际上很多叶子的分裂增益较低，没必要进行搜索和分裂。</p>
+<p>Leaf-wise则是一种更为高效的策略：每次从当前所有叶子中，找到分裂增益最大的一个叶子，然后分裂，如此循环。因此同Level-wise相比，在分裂次数相同的情况下，Leaf-wise可以降低更多的误差，得到更好的精度。</p>
+<p>Leaf-wise的缺点：可能会长出比较深的决策树，产生过拟合。因此LightGBM在Leaf-wise之上增加了一个最大深度限制，在保证高效率的同时防止过拟合。</p>
+<h2 id="xgboost和lightgbm"><a href="#xgboost和lightgbm" class="headerlink" title="xgboost和lightgbm"></a>xgboost和lightgbm</h2><p><strong>决策树算法</strong></p>
+<p>XGBoost使用的是pre-sorted算法，能够更精确的找到数据分隔点；</p>
+<ul>
+<li>首先，对所有特征按数值进行预排序。</li>
+<li>其次，在每次的样本分割时，用O(# data)的代价找到每个特征的最优分割点。</li>
+<li>最后，找到最后的特征以及分割点，将数据分裂成左右两个子节点。</li>
+</ul>
+<p>优缺点：</p>
+<p>这种pre-sorting算法能够准确找到分裂点，但是在空间和时间上有很大的开销。</p>
+<ul>
+<li>i. 由于需要对特征进行预排序并且需要保存排序后的索引值（为了后续快速的计算分裂点），因此内存需要训练数据的两倍。</li>
+<li>ii. 在遍历每一个分割点的时候，都需要进行分裂增益的计算，消耗的代价大。</li>
+</ul>
+<p>LightGBM使用的是histogram算法，占用的内存更低，数据分隔的复杂度更低。</p>
+<p>其思想是将连续的浮点特征离散成k个离散值，并构造宽度为k的Histogram。然后遍历训练数据，统计每个离散值在直方图中的累计统计量。在进行特征选择时，只需要根据直方图的离散值，遍历寻找最优的分割点。</p>
+<p>Histogram 算法的优缺点：</p>
+<ul>
+<li>Histogram算法并不是完美的。由于特征被离散化后，找到的并不是很精确的分割点，所以会对结果产生影响。但在实际的数据集上表明，离散化的分裂点对最终的精度影响并不大，甚至会好一些。原因在于decision tree本身就是一个弱学习器，采用Histogram算法会起到正则化的效果，有效地防止模型的过拟合。</li>
+<li>时间上的开销由原来的<code>O(#data * #features)</code>降到<code>O(k * #features)</code>。由于离散化，<code>#bin</code>远小于<code>#data</code>，因此时间上有很大的提升。</li>
+<li>Histogram算法还可以进一步加速。一个叶子节点的Histogram可以直接由父节点的Histogram和兄弟节点的Histogram做差得到。一般情况下，构造Histogram需要遍历该叶子上的所有数据，通过该方法，只需要遍历Histogram的k个捅。速度提升了一倍。</li>
+</ul>
+<p><strong>决策树生长策略</strong></p>
+<p>XGBoost采用的是按层生长level（depth）-wise生长策略，如Figure 1所示，能够同时分裂同一层的叶子，从而进行多线程优化，不容易过拟合；但不加区分的对待同一层的叶子，带来了很多没必要的开销。因为实际上很多叶子的分裂增益较低，没必要进行搜索和分裂。</p>
+<p><img src="http://5b0988e595225.cdn.sohucs.com/images/20171123/ce94828e7b7a4580a59a0f91d95e5f83.png" alt="这里写图片描述"></p>
+<p>LightGBM采用leaf-wise生长策略，如Figure 2所示，每次从当前所有叶子中找到分裂增益最大（一般也是数据量最大）的一个叶子，然后分裂，如此循环。因此同Level-wise相比，在分裂次数相同的情况下，Leaf-wise可以降低更多的误差，得到更好的精度。Leaf-wise的缺点是可能会长出比较深的决策树，产生过拟合。因此LightGBM在Leaf-wise之上增加了一个最大深度的限制，在保证高效率的同时防止过拟合。</p>
+<p><img src="http://5b0988e595225.cdn.sohucs.com/images/20171123/0159a3990a544d00a6cd025d9a33b499.png" alt="这里写图片描述"></p>
+<p><strong>网络通信优化</strong></p>
+<p>XGBoost由于采用pre-sorted算法，通信代价非常大，所以在并行的时候也是采用histogram算法；LightGBM采用的histogram算法通信代价小，通过使用集合通信算法，能够实现并行计算的线性加速。</p>
+<p><strong>LightGBM支持类别特征</strong></p>
+<p>实际上大多数机器学习工具都无法直接支持类别特征，一般需要把类别特征，转化one-hotting特征，降低了空间和时间的效率。而类别特征的使用是在实践中很常用的。基于这个考虑，LightGBM优化了对类别特征的支持，可以直接输入类别特征，不需要额外的0/1展开。并在决策树算法上增加了类别特征的决策规则。</p>
+<h2 id="lightGBM调参"><a href="#lightGBM调参" class="headerlink" title="lightGBM调参"></a>lightGBM调参</h2><p>所有的参数含义，参考：<a href="http://lightgbm.apachecn.org/cn/latest/Parameters.html" target="_blank" rel="noopener">http://lightgbm.apachecn.org/cn/latest/Parameters.html</a></p>
+<p>调参过程：</p>
+<ol>
+<li><p>num_leaves</p>
+<p>LightGBM使用的是leaf-wise的算法，因此在调节树的复杂程度时，使用的是num_leaves而不是max_depth。大致换算关系：$num_leaves = 2^{(max_depth)}$；</p>
+</li>
+<li><p>样本分布非平衡数据集：可以<code>param[‘is_unbalance’]=’true’</code>；</p>
+</li>
+<li><p>Bagging参数：bagging_fraction+bagging_freq（必须同时设置）、feature_fraction。bagging_fraction可以使bagging的更快的运行出结果，feature_fraction设置在每次迭代中使用特征的比例；</p>
+</li>
+<li><p>min_data_in_leaf、min_sum_hessian_in_leaf：调大它的值可以防止过拟合，它的值通常设置的比较大。</p>
+</li>
+</ol>
+<h2 id="sklearn接口形式的LightGBM示例"><a href="#sklearn接口形式的LightGBM示例" class="headerlink" title="sklearn接口形式的LightGBM示例"></a>sklearn接口形式的LightGBM示例</h2><p>这里主要以sklearn的使用形式来使用lightgbm算法，包含建模，训练，预测，网格参数优化。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> lightgbm <span class="keyword">as</span> lgb</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> mean_squared_error</span><br><span class="line"><span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> GridSearchCV</span><br><span class="line"><span class="keyword">from</span> sklearn.datasets <span class="keyword">import</span> load_iris</span><br><span class="line"><span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> train_test_split</span><br><span class="line"><span class="keyword">from</span> sklearn.datasets <span class="keyword">import</span>  make_classification</span><br><span class="line"><span class="comment"># 加载数据</span></span><br><span class="line">print(<span class="string">'Load data...'</span>)</span><br><span class="line"></span><br><span class="line">iris = load_iris()</span><br><span class="line">data=iris.data</span><br><span class="line">target = iris.target</span><br><span class="line">X_train,X_test,y_train,y_test =train_test_split(data,target,test_size=<span class="number">0.2</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># df_train = pd.read_csv('../regression/regression.train', header=None, sep='\t')</span></span><br><span class="line"><span class="comment"># df_test = pd.read_csv('../regression/regression.test', header=None, sep='\t')</span></span><br><span class="line"><span class="comment"># y_train = df_train[0].values</span></span><br><span class="line"><span class="comment"># y_test = df_test[0].values</span></span><br><span class="line"><span class="comment"># X_train = df_train.drop(0, axis=1).values</span></span><br><span class="line"><span class="comment"># X_test = df_test.drop(0, axis=1).values</span></span><br><span class="line"></span><br><span class="line">print(<span class="string">'Start training...'</span>)</span><br><span class="line"><span class="comment"># 创建模型，训练模型</span></span><br><span class="line">gbm = lgb.LGBMRegressor(objective=<span class="string">'regression'</span>,num_leaves=<span class="number">31</span>,learning_rate=<span class="number">0.05</span>,n_estimators=<span class="number">20</span>)</span><br><span class="line">gbm.fit(X_train, y_train,eval_set=[(X_test, y_test)],eval_metric=<span class="string">'l1'</span>,early_stopping_rounds=<span class="number">5</span>)</span><br><span class="line"></span><br><span class="line">print(<span class="string">'Start predicting...'</span>)</span><br><span class="line"><span class="comment"># 测试机预测</span></span><br><span class="line">y_pred = gbm.predict(X_test, num_iteration=gbm.best_iteration_)</span><br><span class="line"><span class="comment"># 模型评估</span></span><br><span class="line">print(<span class="string">'The rmse of prediction is:'</span>, mean_squared_error(y_test, y_pred) ** <span class="number">0.5</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># feature importances</span></span><br><span class="line">print(<span class="string">'Feature importances:'</span>, list(gbm.feature_importances_))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 网格搜索，参数优化</span></span><br><span class="line">estimator = lgb.LGBMRegressor(num_leaves=<span class="number">31</span>)</span><br><span class="line"></span><br><span class="line">param_grid = &#123;</span><br><span class="line">    <span class="string">'learning_rate'</span>: [<span class="number">0.01</span>, <span class="number">0.1</span>, <span class="number">1</span>],</span><br><span class="line">    <span class="string">'n_estimators'</span>: [<span class="number">20</span>, <span class="number">40</span>]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">gbm = GridSearchCV(estimator, param_grid)</span><br><span class="line"></span><br><span class="line">gbm.fit(X_train, y_train)</span><br><span class="line"></span><br><span class="line">print(<span class="string">'Best parameters found by grid search are:'</span>, gbm.best_params_)</span><br></pre></td></tr></table></figure>
+<h2 id="原生形式使用lightgbm"><a href="#原生形式使用lightgbm" class="headerlink" title="原生形式使用lightgbm"></a>原生形式使用lightgbm</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># coding: utf-8</span></span><br><span class="line"><span class="comment"># pylint: disable = invalid-name, C0111</span></span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">import</span> lightgbm <span class="keyword">as</span> lgb</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> mean_squared_error</span><br><span class="line"><span class="keyword">from</span> sklearn.datasets <span class="keyword">import</span> load_iris</span><br><span class="line"><span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> train_test_split</span><br><span class="line"><span class="keyword">from</span> sklearn.datasets <span class="keyword">import</span>  make_classification</span><br><span class="line"></span><br><span class="line">iris = load_iris()</span><br><span class="line">data=iris.data</span><br><span class="line">target = iris.target</span><br><span class="line">X_train,X_test,y_train,y_test =train_test_split(data,target,test_size=<span class="number">0.2</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 加载你的数据</span></span><br><span class="line"><span class="comment"># print('Load data...')</span></span><br><span class="line"><span class="comment"># df_train = pd.read_csv('../regression/regression.train', header=None, sep='\t')</span></span><br><span class="line"><span class="comment"># df_test = pd.read_csv('../regression/regression.test', header=None, sep='\t')</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># y_train = df_train[0].values</span></span><br><span class="line"><span class="comment"># y_test = df_test[0].values</span></span><br><span class="line"><span class="comment"># X_train = df_train.drop(0, axis=1).values</span></span><br><span class="line"><span class="comment"># X_test = df_test.drop(0, axis=1).values</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建成lgb特征的数据集格式</span></span><br><span class="line">lgb_train = lgb.Dataset(X_train, y_train)</span><br><span class="line">lgb_eval = lgb.Dataset(X_test, y_test, reference=lgb_train)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将参数写成字典下形式</span></span><br><span class="line">params = &#123;</span><br><span class="line">    <span class="string">'task'</span>: <span class="string">'train'</span>,</span><br><span class="line">    <span class="string">'boosting_type'</span>: <span class="string">'gbdt'</span>,  <span class="comment"># 设置提升类型</span></span><br><span class="line">    <span class="string">'objective'</span>: <span class="string">'regression'</span>, <span class="comment"># 目标函数</span></span><br><span class="line">    <span class="string">'metric'</span>: &#123;<span class="string">'l2'</span>, <span class="string">'auc'</span>&#125;,  <span class="comment"># 评估函数</span></span><br><span class="line">    <span class="string">'num_leaves'</span>: <span class="number">31</span>,   <span class="comment"># 叶子节点数</span></span><br><span class="line">    <span class="string">'learning_rate'</span>: <span class="number">0.05</span>,  <span class="comment"># 学习速率</span></span><br><span class="line">    <span class="string">'feature_fraction'</span>: <span class="number">0.9</span>, <span class="comment"># 建树的特征选择比例</span></span><br><span class="line">    <span class="string">'bagging_fraction'</span>: <span class="number">0.8</span>, <span class="comment"># 建树的样本采样比例</span></span><br><span class="line">    <span class="string">'bagging_freq'</span>: <span class="number">5</span>,  <span class="comment"># k 意味着每 k 次迭代执行bagging</span></span><br><span class="line">    <span class="string">'verbose'</span>: <span class="number">1</span> <span class="comment"># &lt;0 显示致命的, =0 显示错误 (警告), &gt;0 显示信息</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">print(<span class="string">'Start training...'</span>)</span><br><span class="line"><span class="comment"># 训练 cv and train</span></span><br><span class="line">gbm = lgb.train(params,lgb_train,num_boost_round=<span class="number">20</span>,valid_sets=lgb_eval,early_stopping_rounds=<span class="number">5</span>)</span><br><span class="line"></span><br><span class="line">print(<span class="string">'Save model...'</span>)</span><br><span class="line"><span class="comment"># 保存模型到文件</span></span><br><span class="line">gbm.save_model(<span class="string">'model.txt'</span>)</span><br><span class="line"></span><br><span class="line">print(<span class="string">'Start predicting...'</span>)</span><br><span class="line"><span class="comment"># 预测数据集</span></span><br><span class="line">y_pred = gbm.predict(X_test, num_iteration=gbm.best_iteration)</span><br><span class="line"><span class="comment"># 评估模型</span></span><br><span class="line">print(<span class="string">'The rmse of prediction is:'</span>, mean_squared_error(y_test, y_pred) ** <span class="number">0.5</span>)</span><br></pre></td></tr></table></figure>
+<h2 id="参数速查："><a href="#参数速查：" class="headerlink" title="参数速查："></a>参数速查：</h2><table>
+<thead>
+<tr>
+<th><a href="https://github.com/Jie-Yuan/DataMining/blob/master/5_PopularAlgorithm/1_Boosting/2_xgb/README.md#1-%E5%8E%9F%E7%94%9F%E6%8E%A5%E5%8F%A3" target="_blank" rel="noopener">xgb</a></th>
+<th><a href="https://github.com/Jie-Yuan/DataMining/blob/master/5_PopularAlgorithm/1_Boosting/1_lgb/README.md#1-%E5%8E%9F%E7%94%9F%E6%8E%A5%E5%8F%A3" target="_blank" rel="noopener">lgb</a></th>
+<th><a href="https://github.com/Jie-Yuan/DataMining/blob/master/5_PopularAlgorithm/1_Boosting/2_xgb/README.md#2-sk%E6%8E%A5%E5%8F%A3" target="_blank" rel="noopener">xgb.sklearn</a></th>
+<th><a href="https://github.com/Jie-Yuan/DataMining/blob/master/5_PopularAlgorithm/1_Boosting/1_lgb/README.md#2-sk%E6%8E%A5%E5%8F%A3" target="_blank" rel="noopener">lgb.sklearn</a></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>booster=’gbtree’</td>
+<td>boosting=’gbdt’</td>
+<td>booster=’gbtree’</td>
+<td>boosting_type=’gbdt’</td>
+</tr>
+<tr>
+<td>objective=’binary:logistic’</td>
+<td>application=’binary’</td>
+<td>objective=’binary:logistic’</td>
+<td>objective=’binary’</td>
+</tr>
+<tr>
+<td>max_depth=7</td>
+<td>num_leaves=2**7</td>
+<td>max_depth=7</td>
+<td>num_leaves=2**7</td>
+</tr>
+<tr>
+<td>eta=0.1</td>
+<td>learning_rate=0.1</td>
+<td>learning_rate=0.1</td>
+<td>learning_rate=0.1</td>
+</tr>
+<tr>
+<td>num_boost_round=10</td>
+<td>num_boost_round=10</td>
+<td>n_estimators=10</td>
+<td>n_estimators=10</td>
+</tr>
+<tr>
+<td>gamma=0</td>
+<td>min_split_gain=0.0</td>
+<td>gamma=0</td>
+<td>min_split_gain=0.0</td>
+</tr>
+<tr>
+<td>min_child_weight=5</td>
+<td>min_child_weight=5</td>
+<td>min_child_weight=5</td>
+<td>min_child_weight=5</td>
+</tr>
+<tr>
+<td>subsample=1</td>
+<td>bagging_fraction=1</td>
+<td>subsample=1.0</td>
+<td>subsample=1.0</td>
+</tr>
+<tr>
+<td>colsample_bytree=1.0</td>
+<td>feature_fraction=1</td>
+<td>colsample_bytree=1.0</td>
+<td>colsample_bytree=1.0</td>
+</tr>
+<tr>
+<td>alpha=0</td>
+<td>lambda_l1=0</td>
+<td>reg_alpha=0.0</td>
+<td>reg_alpha=0.0</td>
+</tr>
+<tr>
+<td>lambda=1</td>
+<td>lambda_l2=0</td>
+<td>reg_lambda=1</td>
+<td>reg_lambda=0.0</td>
+</tr>
+<tr>
+<td>scale_pos_weight=1</td>
+<td>scale_pos_weight=1</td>
+<td>scale_pos_weight=1</td>
+<td>scale_pos_weight=1</td>
+</tr>
+<tr>
+<td>seed</td>
+<td>bagging_seed feature_fraction_seed</td>
+<td>random_state=888</td>
+<td>random_state=888</td>
+</tr>
+<tr>
+<td>nthread</td>
+<td>num_threads</td>
+<td>n_jobs=4</td>
+<td>n_jobs=4</td>
+</tr>
+<tr>
+<td>evals</td>
+<td>valid_sets</td>
+<td>eval_set</td>
+<td>eval_set</td>
+</tr>
+<tr>
+<td>eval_metric</td>
+<td>metric</td>
+<td>eval_metric</td>
+<td>eval_metric</td>
+</tr>
+<tr>
+<td>early_stopping_rounds</td>
+<td>early_stopping_rounds</td>
+<td>early_stopping_rounds</td>
+<td>early_stopping_rounds</td>
+</tr>
+<tr>
+<td>verbose_eval</td>
+<td>verbose_eval</td>
+<td>verbose</td>
+<td>verbose</td>
+</tr>
+</tbody>
+</table>
+
+    
+    </div>
+    
+    <div class="columns is-variable is-1 is-multiline is-mobile">
+    
+        <span class="column is-narrow"><a class="tag is-light article-tag" href="/tags/GBDT/">#GBDT</a></span>
+    
+        <span class="column is-narrow"><a class="tag is-light article-tag" href="/tags/boosting/">#boosting</a></span>
+    
+        <span class="column is-narrow"><a class="tag is-light article-tag" href="/tags/ensemble-learning/">#ensemble learning</a></span>
+    
+    </div>
+    
+    
+    <div class="columns is-mobile is-multiline article-nav">
+        <span class="column is-12-mobile is-half-desktop  article-nav-prev">
+            
+            <a href="/2018/09/13/XGBoost完全指南/">XGBoost完全指南</a>
+            
+        </span>
+        <span class="column is-12-mobile is-half-desktop  article-nav-next">
+            
+            <a href="/2018/09/13/Knowing-When-to-Look-Adaptive-Attention-via-A-Visual-Sentinel-for-Image-Captioning/">Knowing When to Look: Adaptive Attention via A Visual Sentinel for Image Captioning</a>
+            
+        </span>
+    </div>
+    
+</article>
+
+
+
+
+    </div>
+</section>
+    <footer class="footer">
+    <div class="container">
+        <div class="columns content">
+            <div class="column is-narrow has-text-centered">
+                &copy; 2018 Joey Lee&nbsp;
+                Powered by <a href="http://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="http://github.com/ppoffice/hexo-theme-minos">Minos</a>
+            </div>
+            <div class="column is-hidden-mobile"></div>
+
+            
+            <div class="column is-narrow">
+                <div class="columns is-mobile is-multiline is-centered">
+                
+                    
+                <a class="column is-narrow has-text-black" href="https://github.com/bacterous">
+                    
+                    GitHub
+                    
+                </a>
+                
+                </div>
+            </div>
+            
+            
+        </div>
+    </div>
+</footer>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<!-- test if the browser is outdated -->
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/">Update my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="//cdnjs.cloudflare.com/ajax/libs/outdated-browser/1.1.5/outdatedbrowser.min.js"></script>
+<script>
+    $(document).ready(function () {
+        //plugin function, place inside DOM ready function
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        })
+    });
+</script>
+
+<script>
+    window.FontAwesomeConfig = {
+        searchPseudoElements: true
+    }
+</script>
+
+
+    
+    
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": {matchFontHeight: false},
+    SVG: {matchFontHeight: false},
+    CommonHTML: {matchFontHeight: false},
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      processEscapes: true
+    }
+  });
+</script>
+  <!-- Use cdnjs as CDN provider -->
+  <script type="text/javascript" async
+    src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
+  </script>
+
+
+    
+    
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightgallery/1.6.8/js/lightgallery-all.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.6.5/js/jquery.justifiedGallery.min.js"></script>
+<script>
+    (function ($) {
+        $(document).ready(function () {
+            if (typeof($.fn.lightGallery) === 'function') {
+                $('.article.gallery').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof($.fn.justifiedGallery) === 'function') {
+                $('.justified-gallery').justifiedGallery();
+            }
+        });
+    })(jQuery);
+</script>
+
+    
+    
+
+    
+
+
+<script src="/js/script.js"></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-mask"></div>
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="站内搜索" />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js"></script>
+    
+</body>
+</html>
