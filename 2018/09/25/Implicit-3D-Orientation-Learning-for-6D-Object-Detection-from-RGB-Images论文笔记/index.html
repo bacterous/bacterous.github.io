@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html class="has-navbar-fixed-top">
+<head>
+    <meta charset="utf-8">
+<title>Implicit 3D Orientation Learning for 6D Object Detection from RGB Images论文笔记 - 黎光</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/outdated-browser/1.1.5/outdatedbrowser.min.css">
+
+
+
+
+
+
+<link rel="icon" href="/favicon.png">
+
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Ovo|Source+Code+Pro">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+
+
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightgallery/1.6.8/css/lightgallery.min.css">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.6.5/css/justifiedGallery.min.css">
+
+
+<link rel="stylesheet" href="/css/style.css">
+<script defer src="//use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
+
+</head>
+<body>
+    
+<nav class="navbar is-transparent is-fixed-top navbar-main" role="navigation" aria-label="main navigation">
+    <div class="container">
+        <div class="navbar-brand">
+            <a class="navbar-item navbar-logo" href="/">
+                
+                    
+                    黎光
+                    
+                
+            </a>
+            <div class="navbar-burger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+        
+        <div class="navbar-menu navbar-start">
+            
+            <a class="navbar-item "
+               href="/archives">Archives</a>
+            
+        </div>
+        
+        <div class="navbar-menu navbar-end">
+            
+            <a class="navbar-item search" href="javascript:;">
+                <i class="fas fa-search"></i>
+            </a>
+            
+            
+            
+            <a class="navbar-item" href="https://github.com/bacterous">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+               
+            
+        </div>
+    </div>
+</nav>
+
+    <section class="section">
+    <div class="container">
+    <article class="article content gallery" itemscope itemprop="blogPost">
+    <h1 class="article-title is-size-3 is-size-4-mobile" itemprop="name">
+        
+            Implicit 3D Orientation Learning for 6D Object Detection from RGB Images论文笔记
+        
+    </h1>
+    <div class="article-meta columns is-variable is-1 is-multiline is-mobile is-size-7-mobile">
+        <span class="column is-narrow">
+            <time datetime="2018-09-25T14:27:09.000Z" itemprop="datePublished">22 分钟前</time>
+        </span>
+        
+        <span class="column is-narrow article-category">
+            <i class="far fa-folder"></i>
+            <a class="article-category-link" href="/categories/Deep-Learning/">Deep Learning</a>
+        </span>
+        
+        
+        <span class="column is-narrow">
+            
+            
+            36 分钟 读完 (约 5392 字)
+        </span>
+        
+    </div>
+    <div class="article-entry is-size-6-mobile" itemprop="articleBody">
+    
+        <blockquote>
+<p>论文地址<a href="http://openaccess.thecvf.com/content_ECCV_2018/html/Martin_Sundermeyer_Implicit_3D_Orientation_ECCV_2018_paper.html" target="_blank" rel="noopener">http://openaccess.thecvf.com/content_ECCV_2018/html/Martin_Sundermeyer_Implicit_3D_Orientation_ECCV_2018_paper.html</a></p>
+</blockquote>
+<h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><p>提出一个RGB-based的实时目标检测和6D姿态估计pipeline。这个新型3D的目标朝向估计（orientation estimation）方法基于去噪自编码器的一个变体，其采用域随机（Domain Randomization）在3D模型的模拟视图上训练，称之为Augmented Autoencoder。与现有方法相比，它的优势在于：无需真实、带姿态标注的训练数据；可泛化至多种测试传感器，并能够内在地（inherently）处理目标与视图的对称性问题。不需学习一个从输入图像到目标姿态的显式映射，本方法给出了目标朝向的隐式表征（implicit representations），由隐空间（latent space）的样本定义。基于 T-LESS 和 LineMOD 数据集的实验表明所提的方法不仅比类似的基于模型的方法有更好的表现，而且表现也接近目前顶级的、需要真实的姿态标注图像的方法。</p>
+<a id="more"></a>
+<h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>现有方法的劣势：</p>
+<ol>
+<li>对于像目标遮挡、不同的杂乱背景（background clutter）和环境的动态变化等典型难题，不够鲁棒</li>
+<li>通常需要目标的特定属性（如足够的表面纹理结构、非对称形状）来避免混淆</li>
+<li>运行效率不理想，not efficient in带标注训练数据的数量</li>
+</ol>
+<p>本文的方法在单张RGB图像上操作，由于不需深度信息，大大提高了其可用性。同时也注意到，深度图可选择性地合并，以改进估计结果。算法第一步应用SSD做目标检测，获得目标的bbox和identifiers。接着，在生成的scence crops上，使用本文提出的3D朝向估计算法，基于一个预先训练好的深度网络架构。虽然现有方法也在使用深度网络，但是在训练过程中，本算法并未显式地从3D姿态标注中学习 ，而是隐式地从渲染的3D模型中学习表征。这个学习过程利用域随机策略，训练了一个generalized版本的去噪自编码器，称之为Augmented Autoencoder（AAE）。这个方法的优势如下：</p>
+<ol>
+<li>训练过程无需用特殊正交群SO（3）表示的物体朝向，由于避免了从图像到物体朝向间的一对多映射，本方法可以解决由对称视图引起的姿态模糊不清问题</li>
+<li>本方法学习到的表征，特别地编码了3D朝向，故而在面对遮挡、杂乱背景等问题有着不错的鲁棒性，同时对于不同的环境和传感器也有着良好的泛化性</li>
+<li>AAE不需要任何真实的姿态标记好的训练数据，而是以一个自监督的方式训练，完成对3D模型视图的编码。</li>
+</ol>
+<p>整个算法的原理图如下：</p>
+<p><img src="\images\1536811186626.png" alt="Fig.1"></p>
+<h2 id="Related-Work"><a href="#Related-Work" class="headerlink" title="Related Work"></a>Related Work</h2><p>Depth-based方法（如使用Point Pair Features，PPF）在多个数据集上验证了其在姿态估计问题上的鲁棒性，但是通常依赖对许多pose hypotheses进行评估，计算负载较大。另外与RGB相机相比，现有的深度传感器通常对阳光或特定物体表面敏感度更高。</p>
+<p>相较于传统的2D目标检测，对6D物体姿态的真实图像进行标注需要耗费成数量级增加的精力，要求标注者有专业的知识和一个复杂的setup。大部分姿态估计算法使用真实标注图像，不过也因此被限制在pose-annotated datasets</p>
+<p>有些研究也已经提出从3D模型渲染得到合成图像，不费吹灰之力就得到了大量的数据集。但是，单纯在合成图像上训练往往不能泛化到真实的测试图像。因此，问题的关键在于将模拟视图与真实拍照之间的domain gap，想办法连结</p>
+<h3 id="Simulation-to-Reality-Transfer"><a href="#Simulation-to-Reality-Transfer" class="headerlink" title="Simulation to Reality Transfer"></a>Simulation to Reality Transfer</h3><p>从合成数据到真实数据的转换，存在三种主要策略:</p>
+<ul>
+<li><p><strong>Photo-Realistic Rendering</strong></p>
+<p>对诸如目标检测和视角估计（viewpoint estimation）任务有着混合泛化性能。适合环境简单的场景，并在用相对小数量的真实标注图像联合训练的条件下性能不错。但该方法总是有瑕疵，也需更多精力。</p>
+</li>
+<li><p><strong>Domain Adaptation (DA)</strong></p>
+<p>利用训练数据从source domain向target domain映射，其中包含小部分标记数据（监督DA）或未标记数据（ 非监督DA）。对于非监督DA，应用GANs从合成图像生成现实图像，用以训练分类器、3D姿态检测器和grasping algorithms。在构建一个promising方法时，GANs经常生成fragile训练结果。监督DA能降低对真实标注数据的需求，但无法完全放弃。</p>
+</li>
+<li><p><strong>Domain Randomization (DR)</strong></p>
+<p>在多种semi-realistic settings（通过随机的光照条件、背景、饱和度等增广）下渲染得到视图（由于随机增广，故亦会产生真实环境图像），再利用这些视图训练一个模型，视为hypothesis，DR构建即构建在其之上。在使用CNNs解决3D形状检测问题上，Tobin等人验证了DR的潜力。Hinterstoisser等人的工作显示，用一个纹理3D模型的随机合成视图，仅仅训练FasterRCNN的头部网络也能泛化至真实图像。必须提及的是，他们的渲染基本属于photo-realistic，纹理3D模型有着极高的质量。最近，Kehl等人首创了一个专门针对6D目标检测，端到端的CNN—‘SSD6D’，使用一个moderate DR策略来利用合成训练数据。他们将纹理3D物体以随机姿态渲染得到的视图，重建在改变过亮度和对比度的MSCOCO背景图像上。这些操作使网络能够泛化到真实图像之上，并enables 6D detection at 10Hz。跟我们一样，对于十分精确的距离估计，依赖Iterative Closest Point(ICP)，利用深度数据作后处理。但是，我们不将3D朝向估计视为一个分类任务。</p>
+</li>
+</ul>
+<h3 id="Learning-representations-of-3D-orientations"><a href="#Learning-representations-of-3D-orientations" class="headerlink" title="Learning representations of 3D orientations"></a>Learning representations of 3D orientations</h3><p>由于固定的SO（3）参数化会促进对特定对象表征的学习，故而我们认为训练的难点在此。</p>
+<ul>
+<li><p><strong>Regression</strong></p>
+<p>由于旋转存在于连续空间，用固定的SO（3）参数化方法（如：四元数）直接做回归似乎是理所当然的。然而，表示方法的各式约束和模糊位姿会导致收敛问题。实际中，直接回归的方法在3D物体朝向估计问题上的表现不太理想。</p>
+</li>
+<li><p><strong>Classification</strong></p>
+<p>对3D目标朝向做分类 ，需要对SO（3）进行离散化。即使在粗粒度的区间$\sim 5^o$下，也能产生超过50.000个可能的类。因此，每个类别在训练集上只是稀疏地出现，阻碍了收敛过程。SSD6D通过分别分类离散化视角与结构平面内的旋转，学习3D朝向信息，将复杂度降到了$\mathcal O(n^2)$。 但对于非规范视角，例如，当从上方观察物体时，视角的变化几乎等同于结构平面内旋转的变化，这会产生模糊的类组合。总之，使用one-hot分类忽略了不同朝向间的关联。</p>
+</li>
+<li><p><strong>Symmetries</strong></p>
+<p>3D朝向的固定表征，在面对对称性时，会产生严重的位姿歧义。如果不人工介入，同一训练图片可能被分配不同的朝向label，这会严重干扰模型的学习过程。为了处理模糊物体，大部分方法都经过了人工调整。这样的策略在依据目标调整离散化时，忽略了一个维度的旋转，并需额外再训练一个CNN来预测对称性。用这样繁冗的人工方法来提前过滤物体对称性，对于由遮挡和自我遮挡产生歧义的情景更难解决。对称性不仅影响回归和分类方法，对于任何learning-based方法也有很大影响，因为这些方法仅仅通过固定的SO（3）表征分辨目标。</p>
+</li>
+<li><p><strong>Descriptor Learning</strong></p>
+<p>描述子学习可用来学习与目标在低维空间相关的表征。Wohlhart等人提出了一个CNN-based描述子学习方法，使用了triplet-loss。尽管也混合进了合成数据，训练过程仍然依赖pose-annotated传感器数据。而且，该方法不能解决对称问题，因为对于像一些，看起来相同但朝向完全相反的ambiguous object，可能在loss中占主要部分。Baltnas等人在这个研究基础上，enforce描述子与位姿距离间的平衡。利用cosidered poses下，深度信息的差异，为位姿距离损失计算权重，能够很好地解决目标对称问题。这个启发式的方法（heuristic）提升了对称物体的精度，参见[40]。我们的方法也是基于学习描述子，但是我们训练了自监督Augmented Autoencoders（AAEs），其学习过程本身是与任何固定的SO（3）表征独立的。也就是说，描述子的学习仅仅基于目标视图的表观，因此对称歧义问题也被内在地顾及。描述子3D朝向的分配已是在训练结束之后了。另外，不像上述两种方法，我们的方法可以避免训练时真实标注数据的使用。</p>
+<p>Kehl等人在LineMOD数据集上的随机RGB-D scene patches的基础上，构建了一个自编码结构。在测试过程时，场景的描述子与object patches相互比较，找寻最合适的6D 位姿。尽管这些方法需要评估很多patches， 每次预测大约需要670ms。另外，使用局部patches意味着忽略了目标特征间的全局关联，这对只有很少texture的情景是很致命的。相反，我们是在整体的目标视图上训练，显式地学习域不变性（invariance）。</p>
+</li>
+</ul>
+<h2 id="Method"><a href="#Method" class="headerlink" title="Method"></a>Method</h2><p>以下主要介绍新型的基于AAE的3D朝向估计方法。</p>
+<h3 id="Autoencoders"><a href="#Autoencoders" class="headerlink" title="Autoencoders"></a>Autoencoders</h3><p>Hinton等人提出的原始Autoencoder，是针对图像、音频或深度信息这样的高维数据，进行降维的的技术。它由一个编码器$\Phi$和一个解码器$\Psi$组成，都是任意可学习的function approximators，通常是神经网络。训练的目标是，重建通过低维bottleneck的输入$x\in \mathcal {R^D}$ ，被称为潜在表征$z \in \mathcal {R^n}$，其中$\mathcal {n \ll D}$:</p>
+<script type="math/tex; mode=display">\hat x = (\Psi \circ \Phi)(x) = \Psi(z)  \tag 1</script><p>per-sample损失函数是pixel-wise L2距离的单纯求和：</p>
+<script type="math/tex; mode=display">\ell_2=\sum_{(i\in \mathcal D)}||x_{(i)} - \hat x_{(iu)}||_2 \tag 2</script><p>得到的latent space举例来说，可用来做非监督聚类。Denoising Autoencoders相比之下在训练过程中由些许调整。在输入图像$x\in\mathcal{R^D}$上人工添加随机噪声，而重建目标却stays clean。训练的模型，可用来重建降噪后的测试图像。但是，latent表征在其中产生了何种影响呢？</p>
+<p><strong>Hypothesis 1:</strong> <em>由于降噪自编码器生成的latent表征有助于重建去噪图像，故它对噪声是不变（invariant）的。</em></p>
+<p>我们将会论证，这样的训练策略实际不仅仅加强了对抗噪声的不变性，也在对抗大量不同的输入扩增时保持良好的不变性。最终，它使模拟数据与真实数据之间的domain gap得以连接。</p>
+<h3 id="Augmented-Autoencoder"><a href="#Augmented-Autoencoder" class="headerlink" title="Augmented Autoencoder"></a>Augmented Autoencoder</h3><p>AAE的初衷是为了控制latent表征编码过程中，哪些属性保留，哪些丢掉。我们对输入图像$x\in\mathcal{R^D}$做随机增广$f_{augm}(.)$，其编码当为不变量。重建的目标仍以eq.(2)衡量，但是eq.(1)变为：</p>
+<script type="math/tex; mode=display">\hat x = (\Psi \circ \Phi \circ f_{augm})(x) = (\Psi \circ \Phi )(x') = \Psi(z')  \tag 3</script><p>为了证明<strong>Hypothesis 1</strong>适用于几何变换，我们在不同尺度、平面内平移和旋转描绘一个正方形的许多二值图像上，学习latent表征。我们的目的是将平面内的旋转$r \in [0, 2\pi]$编码在2维latent空间 $z\in\mathcal R^2$，编码要能与缩放或者平移独立。Fig.3说明了训练一个CNN-based AE框架（与Fig.5的模型相似）的结果。在固定尺度和平移（1）或随机尺度和平移（2）训练AEs来重建正方形，可以观察到，AEs并不能单独地清楚编码旋转信息，而且对其它latent因素也比较敏感。相反，AAE的编码下，所有朝向一致的正方形也被map到了相同的编码下，对平移和尺度有着不变性。另外，latent表征也更加平滑，latent维度也分别imitate一个频率为$f =\frac 4{2\pi}$的shifted sin和cos函数（latent dimensions imitate a shifted sine and cosine function with frequency $f =\frac 4{2\pi}$ respectively）。原因在于，正方形有两条互相垂直的对称轴。例如，当旋转$\frac {\pi}{2}$之后，正方形看起来就一样了。在3D目标朝向问题上避免由于对称引起的混淆问题，用基于目标appearance而不是固定的parametrization来表征朝向显得尤为有价值。</p>
+<p><img src="\images\1537514259840.png" alt="Fig.3"></p>
+<h3 id="Learnig-3D-Orientation-from-Sythetic-Object-Views"><a href="#Learnig-3D-Orientation-from-Sythetic-Object-Views" class="headerlink" title="Learnig 3D Orientation from Sythetic Object Views"></a>Learnig 3D Orientation from Sythetic Object Views</h3><p>我们的toy problem显示，可以利用一个几何扩增技术，显式地学习目标的平面内的旋转。使用相同的几何输入增强方法，我们可以从3D目标模型（CAD or 3D重建）把整个SO（3）空间编码，且能对不准确的目标检测结果有着良好的鲁棒性。然而，编码器仍然无法与从真实的RGB传感器crop得到的图像关联，原因如下：</p>
+<ol>
+<li>3D模型与真实目标间的差异</li>
+<li>模拟与真实光照条件之间的差异</li>
+<li>网络无法从背景杂乱与前景遮挡分辨目标\</li>
+</ol>
+<p>为了使编码过程对于无关的环境信息、传感器差异等保持不变性，我们在AAE框架下提出了一个域随机（Domain Randomization, DR）技术，而不是尝试在模拟中模仿特定真实传感器记录的每个细节。其目标是训练编码器将不同相机图像的差异，视为另一个无关的偏差。因此，当保持重建目标clean，我们向训练视图的输入，随机地作额外增广：</p>
+<ol>
+<li>在随机光源位置和随机反射与漫反射的条件下（simple Phong model in  OpenGL），渲染视图</li>
+<li>嵌入Pascal VOC数据集中的随机图像，作为背景</li>
+<li>变化图像对比度、亮度、高斯模糊和颜色扭曲</li>
+<li>使用随机物体mask或者黑色正方形产生遮挡</li>
+</ol>
+<p>Fig.4展示了一个典型训练过程，训练数据为T-LESS数据集中object 5的合成视图。</p>
+<p><img src="\images\1537586346997.png" alt="Fig.4" title="Training process for the AAE"></p>
+<h3 id="Network-Architecture-and-Training-Details"><a href="#Network-Architecture-and-Training-Details" class="headerlink" title="Network Architecture and Training Details"></a>Network Architecture and Training Details</h3><p>我们实验中采用的卷积自编码框架如Fig.5所示。我们使用了一个bootstrapped pixel-wise L2损失函数，仅仅在最大误差的像素点上计算loss（每张图片的bootstrap因子 b=4）。因此，重建出了更好的细节，训练过程也没有收敛到局部最优。在OpenGL的帮助下，我们统一为每个目标沿相机轴恒定距离（700mm），以随机3D朝向渲染了20000张视图。将得到的图像进行二次裁剪，并将尺寸调整为$128\times 128\times 3$，如Fig.4所示。在随机光照渲染之外，对输入的所有几何和颜色增广在训练时在线应用，采用uniform random strength，参数详情见补充从材料。优化器采用了Adam，lr为$2\times10^{-4}$，Xavier初始化，batch size为64，30000次迭代。在一张Nvidia Geforce GTX 1080上需$\sim 4$ 小时。</p>
+<p><img src="\images\1537617035806.png" alt="Fig.5" title="Autoencoder CNN architecture with occluded test input"></p>
+<h3 id="Codebook-Creation-and-Test-Procedure"><a href="#Codebook-Creation-and-Test-Procedure" class="headerlink" title="Codebook Creation and Test Procedure"></a>Codebook Creation and Test Procedure</h3><p>训练之后，AAE便有能力从许多不同摄像头传感器（Fig.8）裁切得到的真实场景提取3D目标。编码器重建的清晰程度和朝向，能够表明编码质量的高低。为了从测试场景裁切图像上确定3D目标朝向，我们创建了 一个codebook（Fig.6 (top)）：</p>
+<ol>
+<li>在完整的view空间，用等距的视角渲染clean、合成的目标视图</li>
+<li>以固定间隔在每个视图中旋转，以覆盖整个SO（3）</li>
+<li>通过对所有结果图像生成latent codes $z \in \mathcal{R}^{128}$，和设定相应旋转$R_{cam2obj}\in \mathcal R^{3x3}$ 创建一个codebook</li>
+</ol>
+<p>测试过程中，在RGB场景中先检测出研究目标，目标所在区域被二次裁剪并resize，使其满足encoder的input size。在编码之后，计算测试编码$z_{test}\in \mathcal R^{128}$与codebook中的所有编码$z_i\in \mathcal R^{128}$间的余弦相似度：</p>
+<script type="math/tex; mode=display">cos_i = \frac {z_iz_{test}}{||z_i||||z_{test}||} \tag 4</script><p>利用kNN搜索最高相似度，返回从codebook中得到对应的旋转矩阵${R_{kNN}}$，作为3D目标朝向的估计。我们采用余弦相似度的原因是：</p>
+<ol>
+<li>即使非常大的codebook，也能在一块GPU上有效计算。在实验中，我们有2562个等距视角$\times$36个平面内旋转$=$总共92232项。</li>
+<li>可观察到，可能是由于旋转的圆形性质，对测试latent code的缩放操作，并不改变decoder重建的目标朝向（Fig.7）                                                                                                                                                                                                                                          </li>
+</ol>
+<p><img src="\images\1537760783068.png" alt="Fig. 6"></p>
+<p><img src="\images\1537761006342.png" alt="Fig.7 &amp; Fig.8"></p>
+<h3 id="Extending-to-6D-Object-Detection"><a href="#Extending-to-6D-Object-Detection" class="headerlink" title="Extending to 6D Object Detection"></a>Extending to 6D Object Detection</h3><h4 id="Training-the-Oabject-Detector"><a href="#Training-the-Oabject-Detector" class="headerlink" title="Training the Oabject Detector"></a>Training the Oabject Detector</h4><p>我们finetune了VGG16 base的SSD，所用图像是将LineMOD和T-LESS的训练集的目标，从不同视角得到的recordings嵌在了黑色背景上。我们也训练了backbone为ResNet50的RetinaNet，虽然慢些但是有更高的精度。多个物体以随机朝向、尺度和平移，复制在了一个场景下，并以此调整BBox的标注。至于AAE，黑色背景要用Pascal VOC图像替换。在训练60000个场景后，引入各种颜色和几何增广。</p>
+<h4 id="Projective-Distance-Estimation"><a href="#Projective-Distance-Estimation" class="headerlink" title="Projective Distance Estimation"></a>Projective Distance Estimation</h4><p>我们预估完整的从相机到物体中心的3D变换$t<em>{pred}$，跟[17]一样。因此，对codebook中每个合成的目标视图，保存其2D BBox的对角线长度$l</em>{syn, i}$。测试时，计算检测的BBox对角线长度$l<em>{test}$与对应codebook中（如相似朝向）对角长度$l</em>{syn,max_cos}$之间的比率。针孔相机模型产生的距离估计$t_{pred,z}$为：</p>
+<script type="math/tex; mode=display">t_{pred,z } = t_{syn, z} \times \frac{l_{syn,max_cos}}{l_{test}} \times \frac {f_{test}}{f_{syn}} \tag 5</script><p>其中，$t<em>{syn,z}$为synthetic recdering distance，$f</em>{test}, f_{syn}$分别为测试传感器和渲染视图的焦距。</p>
+<script type="math/tex; mode=display">\begin{pmatrix} t_{pred,x} \\ t_{pred,y} \end{pmatrix} = \frac{t_{pred,z}}{f_{test}} \begin{pmatrix} (bb_{cent,test,x}-p_{test,x})-(bb_{cent,syn,x}-p_{syn,x}) \\ (bb_{cent,test,y}-p_{test,y})-(bb_{cent,syn,y}-p_{syn,y}) \end{pmatrix} \tag 6</script><p>其中，$p<em>{test},p</em>{syn}$为主点（principal points），$bb<em>{cent,syn}$、$bb</em>{cent,syn}$为BBox中心。与[17]相比，我们可以预测不同的test intrinsics的3D变换。</p>
+<h4 id="ICP-Refinement"><a href="#ICP-Refinement" class="headerlink" title="ICP Refinement"></a>ICP Refinement</h4><p>optionally，评估结果在深度数据上进行微调，使用标准的ICP方法在CPU需要$\sim 200ms$。详见补充材料</p>
+<h4 id="Inference-Time"><a href="#Inference-Time" class="headerlink" title="Inference Time"></a>Inference Time</h4><p>VGG16 base的SSD、31个类别加上codebook大小为$92232\times128​$的AAE（Fig.5)，平均的inference times如Table 1所示。RGB-based pipeline可以在Nvidia GTX 1080上以$\sim 42Hz​$达到实时处理。这使AR和机器人应用有更多的余地留给tracking算法。多个编码器和对应codebooks可以放入显存，可以实现多物体的姿态预估。</p>
+<p><img src="\images\1537779125576.png" alt="Table 1 &amp; Table 2"></p>
+<p>(更新ing……..)</p>
+
+    
+    </div>
+    
+    <div class="columns is-variable is-1 is-multiline is-mobile">
+    
+        <span class="column is-narrow"><a class="tag is-light article-tag" href="/tags/6D-Object-Detection/">#6D Object Detection</a></span>
+    
+        <span class="column is-narrow"><a class="tag is-light article-tag" href="/tags/Pose-Estimation/">#Pose Estimation</a></span>
+    
+        <span class="column is-narrow"><a class="tag is-light article-tag" href="/tags/Autoencoder/">#Autoencoder</a></span>
+    
+    </div>
+    
+    
+    <div class="columns is-mobile is-multiline article-nav">
+        <span class="column is-12-mobile is-half-desktop is-hidden-mobile article-nav-prev">
+            
+        </span>
+        <span class="column is-12-mobile is-half-desktop  article-nav-next">
+            
+            <a href="/2018/09/25/Deep-Forest论文笔记/">Deep Forest论文笔记</a>
+            
+        </span>
+    </div>
+    
+</article>
+
+
+
+
+    </div>
+</section>
+    <footer class="footer">
+    <div class="container">
+        <div class="columns content">
+            <div class="column is-narrow has-text-centered">
+                &copy; 2018 Joey Lee&nbsp;
+                Powered by <a href="http://hexo.io/" target="_blank">Hexo</a> & <a
+                        href="http://github.com/ppoffice/hexo-theme-minos">Minos</a>
+            </div>
+            <div class="column is-hidden-mobile"></div>
+
+            
+            <div class="column is-narrow">
+                <div class="columns is-mobile is-multiline is-centered">
+                
+                    
+                <a class="column is-narrow has-text-black" href="https://github.com/bacterous">
+                    
+                    GitHub
+                    
+                </a>
+                
+                </div>
+            </div>
+            
+            
+        </div>
+    </div>
+</footer>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<!-- test if the browser is outdated -->
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/">Update my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="//cdnjs.cloudflare.com/ajax/libs/outdated-browser/1.1.5/outdatedbrowser.min.js"></script>
+<script>
+    $(document).ready(function () {
+        //plugin function, place inside DOM ready function
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        })
+    });
+</script>
+
+<script>
+    window.FontAwesomeConfig = {
+        searchPseudoElements: true
+    }
+</script>
+
+
+    
+    
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": {matchFontHeight: false},
+    SVG: {matchFontHeight: false},
+    CommonHTML: {matchFontHeight: false},
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      processEscapes: true
+    }
+  });
+</script>
+  <!-- Use cdnjs as CDN provider -->
+  <script type="text/javascript" async
+    src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
+  </script>
+
+
+    
+    
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightgallery/1.6.8/js/lightgallery-all.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/justifiedGallery/3.6.5/js/jquery.justifiedGallery.min.js"></script>
+<script>
+    (function ($) {
+        $(document).ready(function () {
+            if (typeof($.fn.lightGallery) === 'function') {
+                $('.article.gallery').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof($.fn.justifiedGallery) === 'function') {
+                $('.justified-gallery').justifiedGallery();
+            }
+        });
+    })(jQuery);
+</script>
+
+    
+    
+
+    
+
+
+<script src="/js/script.js"></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-mask"></div>
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="站内搜索" />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js"></script>
+    
+</body>
+</html>

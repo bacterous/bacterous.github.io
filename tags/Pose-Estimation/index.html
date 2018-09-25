@@ -2,7 +2,7 @@
 <html class="has-navbar-fixed-top">
 <head>
     <meta charset="utf-8">
-<title>归档 - 黎光</title>
+<title>标签: Pose Estimation - 黎光</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/outdated-browser/1.1.5/outdatedbrowser.min.css">
@@ -72,71 +72,59 @@
     </div>
 </nav>
 
-    <section class="section">
+    <section class="section section-heading">
+    <div class="container">
+        <div class="content">
+            <h5>#Pose Estimation</h5>
+        </div>
+    </div>
+</section>
+<section class="section">
     <div class="container">
     
-    
-        <div class="archive content">
-            <h4 class="title is-4" id="2018">2018</h4>
-            <div class="articles">
+        <article class="article content gallery" itemscope itemprop="blogPost">
+    <h1 class="article-title is-size-3 is-size-4-mobile" itemprop="name">
+        
+            <a href="/2018/09/25/Implicit-3D-Orientation-Learning-for-6D-Object-Detection-from-RGB-Images论文笔记/" itemprop="url">Implicit 3D Orientation Learning for 6D Object Detection from RGB Images论文笔记</a>
+        
+    </h1>
+    <div class="article-meta columns is-variable is-1 is-multiline is-mobile is-size-7-mobile">
+        <span class="column is-narrow">
+            <time datetime="2018-09-25T14:27:09.000Z" itemprop="datePublished">22 分钟前</time>
+        </span>
+        
+        <span class="column is-narrow article-category">
+            <i class="far fa-folder"></i>
+            <a class="article-category-link" href="/categories/Deep-Learning/">Deep Learning</a>
+        </span>
+        
+        
+        <span class="column is-narrow">
             
-                <div class="article content>">
-                    <time class="is-text-small" datetime="2018-04-16T08:43:35.000Z" itemprop="datePublished">
-                        4月 16</time>
-                    <h6 class="title is-6"><a href="/2018/04/16/seq2seq中的beam search算法过程/">Beam Search算法过程</a></h6>
-                </div>
             
-                <div class="article content>">
-                    <time class="is-text-small" datetime="2018-01-27T18:56:35.000Z" itemprop="datePublished">
-                        1月 28</time>
-                    <h6 class="title is-6"><a href="/2018/01/28/梯度下降法/">梯度下降法</a></h6>
-                </div>
-            
-                <div class="article content>">
-                    <time class="is-text-small" datetime="2018-01-06T12:56:35.000Z" itemprop="datePublished">
-                        1月 6</time>
-                    <h6 class="title is-6"><a href="/2018/01/06/OPTICS算法基础/">OPTICS算法基础</a></h6>
-                </div>
-            
-            </div>
-        </div>
-    
-        <div class="archive content">
-            <h4 class="title is-4" id="2017">2017</h4>
-            <div class="articles">
-            
-                <div class="article content>">
-                    <time class="is-text-small" datetime="2017-12-18T05:39:35.000Z" itemprop="datePublished">
-                        12月 18</time>
-                    <h6 class="title is-6"><a href="/2017/12/18/理解ResNet、Inception与Xception/">理解ResNet、Inception与Xception</a></h6>
-                </div>
-            
-                <div class="article content>">
-                    <time class="is-text-small" datetime="2017-12-16T15:16:07.000Z" itemprop="datePublished">
-                        12月 16</time>
-                    <h6 class="title is-6"><a href="/2017/12/16/Markdown语法初入/">Markdown语法初入</a></h6>
-                </div>
-            
-            </div>
-        </div>
-    
-    
-    
-<nav class="pagination is-centered is-rounded" role="navigation" aria-label="pagination">
-    <div class="pagination-previous">
-        <a href="/archives/">上一页</a>
+            36 分钟 读完 (约 5392 字)
+        </span>
+        
     </div>
-    <div class="pagination-next is-invisible is-hidden-mobile">
-        <a href="/archives/page/3/">下一页</a>
+    <div class="article-entry is-size-6-mobile" itemprop="articleBody">
+    
+        <blockquote>
+<p>论文地址<a href="http://openaccess.thecvf.com/content_ECCV_2018/html/Martin_Sundermeyer_Implicit_3D_Orientation_ECCV_2018_paper.html" target="_blank" rel="noopener">http://openaccess.thecvf.com/content_ECCV_2018/html/Martin_Sundermeyer_Implicit_3D_Orientation_ECCV_2018_paper.html</a></p>
+</blockquote>
+<h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><p>提出一个RGB-based的实时目标检测和6D姿态估计pipeline。这个新型3D的目标朝向估计（orientation estimation）方法基于去噪自编码器的一个变体，其采用域随机（Domain Randomization）在3D模型的模拟视图上训练，称之为Augmented Autoencoder。与现有方法相比，它的优势在于：无需真实、带姿态标注的训练数据；可泛化至多种测试传感器，并能够内在地（inherently）处理目标与视图的对称性问题。不需学习一个从输入图像到目标姿态的显式映射，本方法给出了目标朝向的隐式表征（implicit representations），由隐空间（latent space）的样本定义。基于 T-LESS 和 LineMOD 数据集的实验表明所提的方法不仅比类似的基于模型的方法有更好的表现，而且表现也接近目前顶级的、需要真实的姿态标注图像的方法。</p>
+        <p class="article-more-link">
+            <a href="/2018/09/25/Implicit-3D-Orientation-Learning-for-6D-Object-Detection-from-RGB-Images论文笔记/#more">阅读更多</a>
+        </p>
+    
     </div>
-    <ul class="pagination-list is-hidden-mobile">
-        
-        <li><a class="pagination-link" href="/archives/">1</a></li>
-        
-        <li><a class="pagination-link is-current" href="/archives/page/2/">2</a></li>
-        
-    </ul>
-</nav>
+    
+    
+</article>
+
+
+
+
+    
     
     </div>
 </section>
