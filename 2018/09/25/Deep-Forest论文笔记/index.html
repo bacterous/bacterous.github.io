@@ -82,7 +82,7 @@
     </h1>
     <div class="article-meta columns is-variable is-1 is-multiline is-mobile is-size-7-mobile">
         <span class="column is-narrow">
-            <time datetime="2018-09-25T14:13:52.000Z" itemprop="datePublished">35 分钟前</time>
+            <time datetime="2018-09-25T14:13:52.000Z" itemprop="datePublished">38 分钟前</time>
         </span>
         
         <span class="column is-narrow article-category">
@@ -142,7 +142,8 @@
 <p>其它条件一定的情况下，模型较高的复杂度一般代表着较强的学习能力。但不能解释浅层网络表现一般的原因，即使添加无限个隐层节点，故模型复杂度本身无法解释DNNs的成功，而在于layer-by-layer。不管flat network复杂度有多高，它们并不能学到逐层处理的特征。</p>
 <p>虽然决策树和Boosting方法有逐层处理，但是在学习过程中，总是work on原始的特征表示，并没有创造新特征，即没有模型内的特征转换。与被武断地赋予足够复杂度的DNNs相比，决策树和Boosting方法的复杂度还是相对有限。</p>
 <h3 id="Inspiration-from-Ensemble-Learning"><a href="#Inspiration-from-Ensemble-Learning" class="headerlink" title="Inspiration from Ensemble Learning"></a>Inspiration from Ensemble Learning</h3><p>对于集成学习来说，每个子学习器需要accurate和diverse。在融合的过程中，与单纯的精确度相比，子学习器间的互补性更重要。从error-ambiguity decomposition可得到：</p>
-<script type="math/tex; mode=display">E = \overline E - \overline A \tag1</script><p>$E$为集成error，$\overline E$为子分类器的平均误差，$\overline A$为子分类器间的平均ambiguity，之后称为多样性。子分类器的精确度和多样性越高，集成效果越好。ambiguity的定义说法不一，故无法将该式子拿来作为优化的函数。</p>
+<p>$$E = \overline E - \overline A \tag1$$</p>
+<p>$E$为集成error，$\overline E$为子分类器的平均误差，$\overline A$为子分类器间的平均ambiguity，之后称为多样性。子分类器的精确度和多样性越高，集成效果越好。ambiguity的定义说法不一，故无法将该式子拿来作为优化的函数。</p>
 <p>实际中，多样性是通过训练时添加随机性实现的，主要有四种机制：</p>
 <ol>
 <li>data sample manipulation</li>

@@ -82,7 +82,7 @@
     </h1>
     <div class="article-meta columns is-variable is-1 is-multiline is-mobile is-size-7-mobile">
         <span class="column is-narrow">
-            <time datetime="2018-09-25T14:27:09.000Z" itemprop="datePublished">22 分钟前</time>
+            <time datetime="2018-09-25T14:27:09.000Z" itemprop="datePublished">25 分钟前</time>
         </span>
         
         <span class="column is-narrow article-category">
@@ -101,7 +101,7 @@
     <div class="article-entry is-size-6-mobile" itemprop="articleBody">
     
         <blockquote>
-<p>论文地址<a href="http://openaccess.thecvf.com/content_ECCV_2018/html/Martin_Sundermeyer_Implicit_3D_Orientation_ECCV_2018_paper.html" target="_blank" rel="noopener">http://openaccess.thecvf.com/content_ECCV_2018/html/Martin_Sundermeyer_Implicit_3D_Orientation_ECCV_2018_paper.html</a></p>
+<p><a href="http://openaccess.thecvf.com/content_ECCV_2018/html/Martin_Sundermeyer_Implicit_3D_Orientation_ECCV_2018_paper.html" target="_blank" rel="noopener">论文地址</a></p>
 </blockquote>
 <h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><p>提出一个RGB-based的实时目标检测和6D姿态估计pipeline。这个新型3D的目标朝向估计（orientation estimation）方法基于去噪自编码器的一个变体，其采用域随机（Domain Randomization）在3D模型的模拟视图上训练，称之为Augmented Autoencoder。与现有方法相比，它的优势在于：无需真实、带姿态标注的训练数据；可泛化至多种测试传感器，并能够内在地（inherently）处理目标与视图的对称性问题。不需学习一个从输入图像到目标姿态的显式映射，本方法给出了目标朝向的隐式表征（implicit representations），由隐空间（latent space）的样本定义。基于 T-LESS 和 LineMOD 数据集的实验表明所提的方法不仅比类似的基于模型的方法有更好的表现，而且表现也接近目前顶级的、需要真实的姿态标注图像的方法。</p>
 <a id="more"></a>
@@ -131,7 +131,7 @@
 <p>利用训练数据从source domain向target domain映射，其中包含小部分标记数据（监督DA）或未标记数据（ 非监督DA）。对于非监督DA，应用GANs从合成图像生成现实图像，用以训练分类器、3D姿态检测器和grasping algorithms。在构建一个promising方法时，GANs经常生成fragile训练结果。监督DA能降低对真实标注数据的需求，但无法完全放弃。</p>
 </li>
 <li><p><strong>Domain Randomization (DR)</strong></p>
-<p>在多种semi-realistic settings（通过随机的光照条件、背景、饱和度等增广）下渲染得到视图（由于随机增广，故亦会产生真实环境图像），再利用这些视图训练一个模型，视为hypothesis，DR构建即构建在其之上。在使用CNNs解决3D形状检测问题上，Tobin等人验证了DR的潜力。Hinterstoisser等人的工作显示，用一个纹理3D模型的随机合成视图，仅仅训练FasterRCNN的头部网络也能泛化至真实图像。必须提及的是，他们的渲染基本属于photo-realistic，纹理3D模型有着极高的质量。最近，Kehl等人首创了一个专门针对6D目标检测，端到端的CNN—‘SSD6D’，使用一个moderate DR策略来利用合成训练数据。他们将纹理3D物体以随机姿态渲染得到的视图，重建在改变过亮度和对比度的MSCOCO背景图像上。这些操作使网络能够泛化到真实图像之上，并enables 6D detection at 10Hz。跟我们一样，对于十分精确的距离估计，依赖Iterative Closest Point(ICP)，利用深度数据作后处理。但是，我们不将3D朝向估计视为一个分类任务。</p>
+<p>在多种semi-realistic settings（通过随机的光照条件、背景、饱和度等增广）下渲染得到视图（由于随机增广，故亦会产生真实环境图像），再利用这些视图训练一个模型，视为hypothesis，DR构建即构建在其之上。在使用CNNs解决3D形状检测问题上，Tobin等人验证了DR的潜力。Hinterstoisser等人的工作显示，用一个纹理3D模型的随机合成视图，仅仅训练FasterRCNN的头部网络也能泛化至真实图像。必须提及的是，他们的渲染基本属于photo-realistic，纹理3D模型有着极高的质量。最近，Kehl等人首创了一个专门针对6D目标检测，端到端的CNN–‘SSD6D’，使用一个moderate DR策略来利用合成训练数据。他们将纹理3D物体以随机姿态渲染得到的视图，重建在改变过亮度和对比度的MSCOCO背景图像上。这些操作使网络能够泛化到真实图像之上，并enables 6D detection at 10Hz。跟我们一样，对于十分精确的距离估计，依赖Iterative Closest Point(ICP)，利用深度数据作后处理。但是，我们不将3D朝向估计视为一个分类任务。</p>
 </li>
 </ul>
 <h3 id="Learning-representations-of-3D-orientations"><a href="#Learning-representations-of-3D-orientations" class="headerlink" title="Learning representations of 3D orientations"></a>Learning representations of 3D orientations</h3><p>由于固定的SO（3）参数化会促进对特定对象表征的学习，故而我们认为训练的难点在此。</p>
@@ -152,12 +152,15 @@
 </ul>
 <h2 id="Method"><a href="#Method" class="headerlink" title="Method"></a>Method</h2><p>以下主要介绍新型的基于AAE的3D朝向估计方法。</p>
 <h3 id="Autoencoders"><a href="#Autoencoders" class="headerlink" title="Autoencoders"></a>Autoencoders</h3><p>Hinton等人提出的原始Autoencoder，是针对图像、音频或深度信息这样的高维数据，进行降维的的技术。它由一个编码器$\Phi$和一个解码器$\Psi$组成，都是任意可学习的function approximators，通常是神经网络。训练的目标是，重建通过低维bottleneck的输入$x\in \mathcal {R^D}$ ，被称为潜在表征$z \in \mathcal {R^n}$，其中$\mathcal {n \ll D}$:</p>
-<script type="math/tex; mode=display">\hat x = (\Psi \circ \Phi)(x) = \Psi(z)  \tag 1</script><p>per-sample损失函数是pixel-wise L2距离的单纯求和：</p>
-<script type="math/tex; mode=display">\ell_2=\sum_{(i\in \mathcal D)}||x_{(i)} - \hat x_{(iu)}||_2 \tag 2</script><p>得到的latent space举例来说，可用来做非监督聚类。Denoising Autoencoders相比之下在训练过程中由些许调整。在输入图像$x\in\mathcal{R^D}$上人工添加随机噪声，而重建目标却stays clean。训练的模型，可用来重建降噪后的测试图像。但是，latent表征在其中产生了何种影响呢？</p>
+<p>$$\hat x = (\Psi \circ \Phi)(x) = \Psi(z)  \tag 1$$</p>
+<p>per-sample损失函数是pixel-wise L2距离的单纯求和：</p>
+<p>$$\ell_2=\sum_{(i\in \mathcal D)}||x_{(i)} - \hat x_{(iu)}||_2 \tag 2$$</p>
+<p>得到的latent space举例来说，可用来做非监督聚类。Denoising Autoencoders相比之下在训练过程中由些许调整。在输入图像$x\in\mathcal{R^D}$上人工添加随机噪声，而重建目标却stays clean。训练的模型，可用来重建降噪后的测试图像。但是，latent表征在其中产生了何种影响呢？</p>
 <p><strong>Hypothesis 1:</strong> <em>由于降噪自编码器生成的latent表征有助于重建去噪图像，故它对噪声是不变（invariant）的。</em></p>
 <p>我们将会论证，这样的训练策略实际不仅仅加强了对抗噪声的不变性，也在对抗大量不同的输入扩增时保持良好的不变性。最终，它使模拟数据与真实数据之间的domain gap得以连接。</p>
 <h3 id="Augmented-Autoencoder"><a href="#Augmented-Autoencoder" class="headerlink" title="Augmented Autoencoder"></a>Augmented Autoencoder</h3><p>AAE的初衷是为了控制latent表征编码过程中，哪些属性保留，哪些丢掉。我们对输入图像$x\in\mathcal{R^D}$做随机增广$f_{augm}(.)$，其编码当为不变量。重建的目标仍以eq.(2)衡量，但是eq.(1)变为：</p>
-<script type="math/tex; mode=display">\hat x = (\Psi \circ \Phi \circ f_{augm})(x) = (\Psi \circ \Phi )(x') = \Psi(z')  \tag 3</script><p>为了证明<strong>Hypothesis 1</strong>适用于几何变换，我们在不同尺度、平面内平移和旋转描绘一个正方形的许多二值图像上，学习latent表征。我们的目的是将平面内的旋转$r \in [0, 2\pi]$编码在2维latent空间 $z\in\mathcal R^2$，编码要能与缩放或者平移独立。Fig.3说明了训练一个CNN-based AE框架（与Fig.5的模型相似）的结果。在固定尺度和平移（1）或随机尺度和平移（2）训练AEs来重建正方形，可以观察到，AEs并不能单独地清楚编码旋转信息，而且对其它latent因素也比较敏感。相反，AAE的编码下，所有朝向一致的正方形也被map到了相同的编码下，对平移和尺度有着不变性。另外，latent表征也更加平滑，latent维度也分别imitate一个频率为$f =\frac 4{2\pi}$的shifted sin和cos函数（latent dimensions imitate a shifted sine and cosine function with frequency $f =\frac 4{2\pi}$ respectively）。原因在于，正方形有两条互相垂直的对称轴。例如，当旋转$\frac {\pi}{2}$之后，正方形看起来就一样了。在3D目标朝向问题上避免由于对称引起的混淆问题，用基于目标appearance而不是固定的parametrization来表征朝向显得尤为有价值。</p>
+<p>$$\hat x = (\Psi \circ \Phi \circ f_{augm})(x) = (\Psi \circ \Phi )(x’) = \Psi(z’)  \tag 3$$</p>
+<p>为了证明<strong>Hypothesis 1</strong>适用于几何变换，我们在不同尺度、平面内平移和旋转描绘一个正方形的许多二值图像上，学习latent表征。我们的目的是将平面内的旋转$r \in [0, 2\pi]$编码在2维latent空间 $z\in\mathcal R^2$，编码要能与缩放或者平移独立。Fig.3说明了训练一个CNN-based AE框架（与Fig.5的模型相似）的结果。在固定尺度和平移（1）或随机尺度和平移（2）训练AEs来重建正方形，可以观察到，AEs并不能单独地清楚编码旋转信息，而且对其它latent因素也比较敏感。相反，AAE的编码下，所有朝向一致的正方形也被map到了相同的编码下，对平移和尺度有着不变性。另外，latent表征也更加平滑，latent维度也分别imitate一个频率为$f =\frac 4{2\pi}$的shifted sin和cos函数（latent dimensions imitate a shifted sine and cosine function with frequency $f =\frac 4{2\pi}$ respectively）。原因在于，正方形有两条互相垂直的对称轴。例如，当旋转$\frac {\pi}{2}$之后，正方形看起来就一样了。在3D目标朝向问题上避免由于对称引起的混淆问题，用基于目标appearance而不是固定的parametrization来表征朝向显得尤为有价值。</p>
 <p><img src="\images\1537514259840.png" alt="Fig.3"></p>
 <h3 id="Learnig-3D-Orientation-from-Sythetic-Object-Views"><a href="#Learnig-3D-Orientation-from-Sythetic-Object-Views" class="headerlink" title="Learnig 3D Orientation from Sythetic Object Views"></a>Learnig 3D Orientation from Sythetic Object Views</h3><p>我们的toy problem显示，可以利用一个几何扩增技术，显式地学习目标的平面内的旋转。使用相同的几何输入增强方法，我们可以从3D目标模型（CAD or 3D重建）把整个SO（3）空间编码，且能对不准确的目标检测结果有着良好的鲁棒性。然而，编码器仍然无法与从真实的RGB传感器crop得到的图像关联，原因如下：</p>
 <ol>
@@ -183,7 +186,8 @@
 <li>通过对所有结果图像生成latent codes $z \in \mathcal{R}^{128}$，和设定相应旋转$R_{cam2obj}\in \mathcal R^{3x3}$ 创建一个codebook</li>
 </ol>
 <p>测试过程中，在RGB场景中先检测出研究目标，目标所在区域被二次裁剪并resize，使其满足encoder的input size。在编码之后，计算测试编码$z_{test}\in \mathcal R^{128}$与codebook中的所有编码$z_i\in \mathcal R^{128}$间的余弦相似度：</p>
-<script type="math/tex; mode=display">cos_i = \frac {z_iz_{test}}{||z_i||||z_{test}||} \tag 4</script><p>利用kNN搜索最高相似度，返回从codebook中得到对应的旋转矩阵${R_{kNN}}$，作为3D目标朝向的估计。我们采用余弦相似度的原因是：</p>
+<p>$$cos_i = \frac {z_iz_{test}}{||z_i||||z_{test}||} \tag 4$$</p>
+<p>利用kNN搜索最高相似度，返回从codebook中得到对应的旋转矩阵$\{R_{kNN}\}$，作为3D目标朝向的估计。我们采用余弦相似度的原因是：</p>
 <ol>
 <li>即使非常大的codebook，也能在一块GPU上有效计算。在实验中，我们有2562个等距视角$\times$36个平面内旋转$=$总共92232项。</li>
 <li>可观察到，可能是由于旋转的圆形性质，对测试latent code的缩放操作，并不改变decoder重建的目标朝向（Fig.7）                                                                                                                                                                                                                                          </li>
@@ -191,9 +195,11 @@
 <p><img src="\images\1537760783068.png" alt="Fig. 6"></p>
 <p><img src="\images\1537761006342.png" alt="Fig.7 &amp; Fig.8"></p>
 <h3 id="Extending-to-6D-Object-Detection"><a href="#Extending-to-6D-Object-Detection" class="headerlink" title="Extending to 6D Object Detection"></a>Extending to 6D Object Detection</h3><h4 id="Training-the-Oabject-Detector"><a href="#Training-the-Oabject-Detector" class="headerlink" title="Training the Oabject Detector"></a>Training the Oabject Detector</h4><p>我们finetune了VGG16 base的SSD，所用图像是将LineMOD和T-LESS的训练集的目标，从不同视角得到的recordings嵌在了黑色背景上。我们也训练了backbone为ResNet50的RetinaNet，虽然慢些但是有更高的精度。多个物体以随机朝向、尺度和平移，复制在了一个场景下，并以此调整BBox的标注。至于AAE，黑色背景要用Pascal VOC图像替换。在训练60000个场景后，引入各种颜色和几何增广。</p>
-<h4 id="Projective-Distance-Estimation"><a href="#Projective-Distance-Estimation" class="headerlink" title="Projective Distance Estimation"></a>Projective Distance Estimation</h4><p>我们预估完整的从相机到物体中心的3D变换$t<em>{pred}$，跟[17]一样。因此，对codebook中每个合成的目标视图，保存其2D BBox的对角线长度$l</em>{syn, i}$。测试时，计算检测的BBox对角线长度$l<em>{test}$与对应codebook中（如相似朝向）对角长度$l</em>{syn,max_cos}$之间的比率。针孔相机模型产生的距离估计$t_{pred,z}$为：</p>
-<script type="math/tex; mode=display">t_{pred,z } = t_{syn, z} \times \frac{l_{syn,max_cos}}{l_{test}} \times \frac {f_{test}}{f_{syn}} \tag 5</script><p>其中，$t<em>{syn,z}$为synthetic recdering distance，$f</em>{test}, f_{syn}$分别为测试传感器和渲染视图的焦距。</p>
-<script type="math/tex; mode=display">\begin{pmatrix} t_{pred,x} \\ t_{pred,y} \end{pmatrix} = \frac{t_{pred,z}}{f_{test}} \begin{pmatrix} (bb_{cent,test,x}-p_{test,x})-(bb_{cent,syn,x}-p_{syn,x}) \\ (bb_{cent,test,y}-p_{test,y})-(bb_{cent,syn,y}-p_{syn,y}) \end{pmatrix} \tag 6</script><p>其中，$p<em>{test},p</em>{syn}$为主点（principal points），$bb<em>{cent,syn}$、$bb</em>{cent,syn}$为BBox中心。与[17]相比，我们可以预测不同的test intrinsics的3D变换。</p>
+<h4 id="Projective-Distance-Estimation"><a href="#Projective-Distance-Estimation" class="headerlink" title="Projective Distance Estimation"></a>Projective Distance Estimation</h4><p>我们预估完整的从相机到物体中心的3D变换$t_{pred}$，跟[17]一样。因此，对codebook中每个合成的目标视图，保存其2D BBox的对角线长度$l_{syn, i}$。测试时，计算检测的BBox对角线长度$l_{test}$与对应codebook中（如相似朝向）对角长度$l_{syn,max_cos}$之间的比率。针孔相机模型产生的距离估计$t_{pred,z}$为：</p>
+<p>$$t_{pred,z } = t_{syn, z} \times \frac{l_{syn,max_cos}}{l_{test}} \times \frac {f_{test}}{f_{syn}} \tag 5$$</p>
+<p>其中，$t_{syn,z}$为synthetic recdering distance，$f_{test}, f_{syn}$分别为测试传感器和渲染视图的焦距。</p>
+<p>$$\begin{pmatrix} t_{pred,x} \ t_{pred,y} \end{pmatrix} = \frac{t_{pred,z}}{f_{test}} \begin{pmatrix} (bb_{cent,test,x}-p_{test,x})-(bb_{cent,syn,x}-p_{syn,x}) \ (bb_{cent,test,y}-p_{test,y})-(bb_{cent,syn,y}-p_{syn,y}) \end{pmatrix} \tag 6$$</p>
+<p>其中，$p_{test},p_{syn}$为主点（principal points），$bb_{cent,syn}$、$bb_{cent,syn}$为BBox中心。与[17]相比，我们可以预测不同的test intrinsics的3D变换。</p>
 <h4 id="ICP-Refinement"><a href="#ICP-Refinement" class="headerlink" title="ICP Refinement"></a>ICP Refinement</h4><p>optionally，评估结果在深度数据上进行微调，使用标准的ICP方法在CPU需要$\sim 200ms$。详见补充材料</p>
 <h4 id="Inference-Time"><a href="#Inference-Time" class="headerlink" title="Inference Time"></a>Inference Time</h4><p>VGG16 base的SSD、31个类别加上codebook大小为$92232\times128​$的AAE（Fig.5)，平均的inference times如Table 1所示。RGB-based pipeline可以在Nvidia GTX 1080上以$\sim 42Hz​$达到实时处理。这使AR和机器人应用有更多的余地留给tracking算法。多个编码器和对应codebooks可以放入显存，可以实现多物体的姿态预估。</p>
 <p><img src="\images\1537779125576.png" alt="Table 1 &amp; Table 2"></p>
