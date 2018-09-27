@@ -82,7 +82,7 @@
     </h1>
     <div class="article-meta columns is-variable is-1 is-multiline is-mobile is-size-7-mobile">
         <span class="column is-narrow">
-            <time datetime="2018-09-25T14:13:52.000Z" itemprop="datePublished">38 分钟前</time>
+            <time datetime="2018-09-25T14:13:52.000Z" itemprop="datePublished">2 天前</time>
         </span>
         
         <span class="column is-narrow article-category">
@@ -94,7 +94,7 @@
         <span class="column is-narrow">
             
             
-            20 分钟 读完 (约 3007 字)
+            21 分钟 读完 (约 3205 字)
         </span>
         
     </div>
@@ -103,14 +103,19 @@
         <blockquote>
 <p>论文链接<a href="https://arxiv.org/abs/1702.08835" target="_blank" rel="noopener">https://arxiv.org/abs/1702.08835</a></p>
 </blockquote>
-<h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><p>尝试用不可微模块建立深度模型</p>
-<p>推测dnn成功的秘密在于：</p>
+<h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><ul>
+<li><p>尝试用不可微模块建立深度模型</p>
+</li>
+<li><p>推测dnn成功的秘密在于：</p>
 <ul>
 <li>layer by layer processing</li>
 <li>in-model feature transformation</li>
 <li>sufficient model complexity</li>
 </ul>
-<p>提出gcForest，决策树集合方法，比DNN更少的超参数，模型复杂度依据数据自动调整。采用默认参数设置，对于不同领域各种类型的数据，在大部分情况下相当鲁棒。</p>
+</li>
+<li><p>提出gcForest，决策树集合方法，比DNN更少的超参数，模型复杂度依据数据自动调整。采用默认参数设置，对于不同领域各种类型的数据，在大部分情况下相当鲁棒。</p>
+</li>
+</ul>
 <a id="more"></a>
 <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>DNNs缺点：</p>
 <ul>
@@ -130,7 +135,7 @@
 <li>不用反向传播可以训练深度模型吗</li>
 <li>在rf或者XGBoost表现强劲的task上，能否让深度模型表现更好</li>
 </ol>
-<p>gcforest优点：</p>
+<p>由layer-by-layer结构启发，采用级联的forest结构，提出gcforest，有着这样的优点：</p>
 <ul>
 <li>学习能力</li>
 <li>模型复杂度data-dependent，小数据问题表现良好</li>
@@ -258,6 +263,13 @@
 </li>
 <li>completely-random tree forests不仅增加了多样性， 也有可能利用unlabeled data</li>
 </ul>
+<h2 id="个人思考"><a href="#个人思考" class="headerlink" title="个人思考"></a>个人思考</h2><ul>
+<li>采用原始特征拼接前一层转换特征的的方式，引入了类似shortcut-connection，但是这个shortcut只引入原始特征，中间靠前层级的转换特征并没有shortcut到之后层以供学习。</li>
+<li>多粒度扫描像1D和2D的convolution，但是觉得这样的特征转换，对于label的处理过于武断，对于序列与空间信息不够完善，还有很大的发展空间。</li>
+<li>由于data-dependant，如何进行迁移学习，如何fine-tune是个很大的问题</li>
+<li>大数据集上面到底表现如何</li>
+</ul>
+<p><a href="https://www.zhihu.com/question/56474891" target="_blank" rel="noopener">参考</a></p>
 
     
     </div>
