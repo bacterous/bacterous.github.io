@@ -82,7 +82,7 @@
     </h1>
     <div class="article-meta columns is-variable is-1 is-multiline is-mobile is-size-7-mobile">
         <span class="column is-narrow">
-            <time datetime="2018-09-25T14:13:52.000Z" itemprop="datePublished">2 天前</time>
+            <time datetime="2018-09-25T14:13:52.000Z" itemprop="datePublished">4 天前</time>
         </span>
         
         <span class="column is-narrow article-category">
@@ -94,7 +94,7 @@
         <span class="column is-narrow">
             
             
-            21 分钟 读完 (约 3205 字)
+            26 分钟 读完 (约 3854 字)
         </span>
         
     </div>
@@ -102,6 +102,7 @@
     
         <blockquote>
 <p>论文链接<a href="https://arxiv.org/abs/1702.08835" target="_blank" rel="noopener">https://arxiv.org/abs/1702.08835</a></p>
+<p>注：本文谨代表笔者观点，文中若有不足及疏忽之处，诚请批评指正</p>
 </blockquote>
 <h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><ul>
 <li><p>尝试用不可微模块建立深度模型</p>
@@ -119,13 +120,13 @@
 <a id="more"></a>
 <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>DNNs缺点：</p>
 <ul>
-<li>太多超参数，学习表现极度依赖细致的调参过程。训练过程太tricky，涉及到的factor太多几乎有无限种可能，理论分析十分困难。</li>
-<li>对数据极度饥饿，在小数据量问题上很难应用。对于一些大数据量领域，由于标注的成本较高，数据还是不够充足。</li>
-<li>黑箱，无法理解决策过程，无法理论分析学习过程</li>
-<li>训练之前必须先确定网络结构，故而模型复杂度是预先确定的。实际中模型复杂度overly complicated，shortcut connection、剪枝、二值化 有助于提高DNNs的性能。</li>
+<li>太多超参数，学习表现极度依赖细致的<strong>调参</strong>过程。训练过程太<strong>tricky</strong>，涉及到的factor太多几乎有无限种可能，理论分析十分困难。</li>
+<li>对<strong>数据</strong>极度饥饿，在小数据量问题上很难应用。对于一些大数据量领域，由于标注的成本较高，数据还是不够充足。</li>
+<li><strong>黑箱</strong>，无法理解决策过程，无法理论分析学习过程</li>
+<li>训练之前必须先确定网络结构，故而<strong>模型复杂度</strong>是<strong>预先确定</strong>的。实际中模型复杂度overly complicated，shortcut connection、剪枝、二值化 有助于提高DNNs的性能。</li>
 <li>一些任务上，DNNs仍然不够出众，有时甚至不够充分</li>
 </ul>
-<p>神经网络是多层的参数化可微的非线性模块，但是现实世界中不是所有的属性都是可微或者best modelled as differentiable。文章在尝试解决这样一个问题：</p>
+<p>神经网络是多层的参数化<strong>可微</strong>的非线性模块，但是现实世界中不是所有的properties都是可微或者best modelled as differentiable。文章在尝试解决这样一个问题：</p>
 <blockquote>
 <p>Can deep learning be realized with non-differentiable modules?</p>
 </blockquote>
@@ -137,19 +138,18 @@
 </ol>
 <p>由layer-by-layer结构启发，采用级联的forest结构，提出gcforest，有着这样的优点：</p>
 <ul>
-<li>学习能力</li>
-<li>模型复杂度data-dependent，小数据问题表现良好</li>
+<li>模型复杂度<strong>data-dependent</strong>，小数据问题表现良好</li>
 <li>更少的超参数</li>
 <li>即使是不同领域的各种数据，采用默认参数设置，表现依然出色</li>
 </ul>
 <h2 id="Inspiration"><a href="#Inspiration" class="headerlink" title="Inspiration"></a>Inspiration</h2><h3 id="Inspiration-from-DNNs"><a href="#Inspiration-from-DNNs" class="headerlink" title="Inspiration from DNNs"></a>Inspiration from DNNs</h3><p>DNNs成功最重要的是representation learning，表征学习最重要的是layer-by-layer processing。从底层往上，特征的抽象程度越高。</p>
-<p><img src="\images\1537857757866.png" alt="Fig.1" title="Illustration of the layer-by-layer processing in deep neural networks"></p>
-<p>其它条件一定的情况下，模型较高的复杂度一般代表着较强的学习能力。但不能解释浅层网络表现一般的原因，即使添加无限个隐层节点，故模型复杂度本身无法解释DNNs的成功，而在于layer-by-layer。不管flat network复杂度有多高，它们并不能学到逐层处理的特征。</p>
-<p>虽然决策树和Boosting方法有逐层处理，但是在学习过程中，总是work on原始的特征表示，并没有创造新特征，即没有模型内的特征转换。与被武断地赋予足够复杂度的DNNs相比，决策树和Boosting方法的复杂度还是相对有限。</p>
-<h3 id="Inspiration-from-Ensemble-Learning"><a href="#Inspiration-from-Ensemble-Learning" class="headerlink" title="Inspiration from Ensemble Learning"></a>Inspiration from Ensemble Learning</h3><p>对于集成学习来说，每个子学习器需要accurate和diverse。在融合的过程中，与单纯的精确度相比，子学习器间的互补性更重要。从error-ambiguity decomposition可得到：</p>
+<p><img src="\images\1537857757866.png" alt="Fig.1 Illustration of the layer-by-layer processing in deep neural networks"></p>
+<p>其它条件一定的情况下，模型较高的复杂度一般代表着较强的学习能力。但不能解释浅层网络表现一般的原因，即使添加无限个隐层节点，故模型复杂度本身无法解释DNNs的成功，而在于layer-by-layer。不管flat network复杂度有多高，它们并不能学到<strong>逐层</strong>处理的特征。</p>
+<p>虽然决策树和Boosting方法有逐层处理，但是在学习过程中，总是work on <strong>原始</strong>的特征表示，并没有创造新特征，即没有<strong>模型内的特征转换</strong>。与被武断地赋予足够复杂度的DNNs相比，决策树和Boosting方法的复杂度还是相对有限。</p>
+<h3 id="Inspiration-from-Ensemble-Learning"><a href="#Inspiration-from-Ensemble-Learning" class="headerlink" title="Inspiration from Ensemble Learning"></a>Inspiration from Ensemble Learning</h3><p>对于集成学习来说，每个子学习器需要accurate和diverse。在融合的过程中，与单纯的精确度相比，子学习器间的<strong>互补性</strong>更重要。从error-ambiguity decomposition可得到：</p>
 <p>$$E = \overline E - \overline A \tag1$$</p>
 <p>$E$为集成error，$\overline E$为子分类器的平均误差，$\overline A$为子分类器间的平均ambiguity，之后称为多样性。子分类器的精确度和多样性越高，集成效果越好。ambiguity的定义说法不一，故无法将该式子拿来作为优化的函数。</p>
-<p>实际中，多样性是通过训练时添加随机性实现的，主要有四种机制：</p>
+<p>实际中，多样性是通过训练时添加<strong>随机性</strong>实现的，主要有四种机制：</p>
 <ol>
 <li>data sample manipulation</li>
 <li>input feature manipulation</li>
@@ -157,26 +157,26 @@
 <li>output representation manipulation</li>
 </ol>
 <p>不同的机制可以融合使用，但是并不是很有效。</p>
-<h2 id="The-gcForest-Approach"><a href="#The-gcForest-Approach" class="headerlink" title="The gcForest Approach"></a>The gcForest Approach</h2><h3 id="Cascade-Forest-Structure"><a href="#Cascade-Forest-Structure" class="headerlink" title="Cascade Forest Structure"></a>Cascade Forest Structure</h3><p>由layer-by-layer processing启发，gcForest采用一个流形结构。</p>
-<p><img src="\images\1537862005085.png" alt="Fig.2"></p>
+<h2 id="The-gcForest-Approach"><a href="#The-gcForest-Approach" class="headerlink" title="The gcForest Approach"></a>The gcForest Approach</h2><h3 id="Cascade-Forest-Structure"><a href="#Cascade-Forest-Structure" class="headerlink" title="Cascade Forest Structure"></a>Cascade Forest Structure</h3><p>由layer-by-layer processing启发，gcForest采用一个级联结构。</p>
+<p><img src="\images\1537862005085.png" alt="Fig.2 Illustration of cascade forest structure"></p>
 <p>每一层是一个决策树森林的集成，包含two random forests (black) and two completely-random tree forests(blue)。每个completely-random tree forests 包含500个完全随机的树，其中，每棵树随机选择属性分裂节点，直至纯净的叶子节点。每个random forest包含500个树，随机选择$\sqrt d$个属性作为候选集，再依据jini分裂。</p>
 <p>给定一个实例，通过计算实例所落在的叶子节点上，不同类别训练样本的比例，之后将该森林中每棵树的结果作以平均，每个forest就可以得到类别分布的估计。这个类别分布构成一个类别向量，再与之前原始特征拼接，作为下一层的输入。</p>
-<p><img src="\images\1537863642425.png" alt="Fig.3"></p>
+<p><img src="\images\1537863642425.png" alt="Fig.3 Illustration of class vector generation"></p>
 <p>假设有3个类别，那么四个森林，每个都会产生一个3维的类别向量，下一层会接收到12（$=3\times4$）个扩增特征。</p>
-<p>这里类别特征太简单，这样的小的增广特征，所能传递的增广信息很有限，会被原始特征淹没。很明显，更可以合并更多特征，比如父节点的类别分布（先验分布），兄弟节点的类别分布（互补分布）。</p>
-<p>每个森林的类别向量利用k折交叉验证得到，以防止过拟合。扩展完一层后，整个流形结构可在验证集上面测试性能，若没有显著提高，训练过程会终止，故而层数可以自动确定。这也是gcForest能够自动决定模型复杂度的原因。</p>
+<p>这里类别特征太简单，这样的小的增广特征，所能传递的增广信息很有限，会被原始特征<strong>淹没</strong>。很明显，更可以合并更多特征，比如父节点的类别分布（先验分布），兄弟节点的类别分布（互补分布）。</p>
+<p>每个森林的类别向量利用k折交叉验证得到，以防止过拟合。扩展完一层后，整个级联结构可在验证集上面测试性能，若没有显著提高，训练过程会终止，故而层数可以<strong>自动</strong>确定。这也是gcForest能够<strong>自动决定模型复杂度</strong>的原因。</p>
 <h3 id="Multi-Grained-Scanning"><a href="#Multi-Grained-Scanning" class="headerlink" title="Multi-Grained Scanning"></a>Multi-Grained Scanning</h3><p>由CNNs和RNNs启发，利用多粒度扫描加强cascade forest。</p>
-<p><img src="\images\1537865948334.png" alt="Fig.4"></p>
+<p><img src="\images\1537865948334.png" alt="Fig.4 Illustration of feature re-representation using sliding window scannig"></p>
 <p>如上图，利用滑动窗口扫描原始特征。假设原始特征为400，窗口大小为100。对于序列数据，一次滑动得到一个100维的特征向量，共生成301个特征向量。如果原始数据存在空间联系，例如400图像像素可视为$20\times 20$的panel，$10\times10$的窗口会生成121个特征向量。特征向量的类别标签与原始数据的标签保持一致。以上图序列数据为例，假设有3类的前提下，每棵树利用100维的窗口生成了301个特征向量，同时就有301个3维的类别向量，即对应原始400维的特征向量就生成了一个1806维的转换特征。</p>
 <p>每个特征向量的标签，分配成原始数据的标签不可避免的有问题。可采用Flipping Output方法，随机改变一些输入样本的标签。</p>
-<p>当转换特征太长时，可作特征采样，具体来说是对滑动窗口扫描所得instances的二次采样。此采样过程与Random Subsapace方法有关（从初始属性集中抽取若干个属性子集, 再基于每个属性子集训练一个基学习器）。</p>
+<p>当转换特征<strong>太长</strong>时，可作<strong>特征采样</strong>，具体来说是对滑动窗口扫描所得instances的二次采样。此采样过程与Random Subsapace方法有关（从初始属性集中抽取若干个属性子集, 再基于每个属性子集训练一个基学习器）。</p>
 <p>上图仅仅展示了一个size的滑动窗口，通过使用多尺度的滑动窗口，便能生成多尺度下的特征向量，如下图。      </p>
-<p><img src="\images\1537868592138.png" alt="Fig.5"></p>
+<p><img src="\images\1537868592138.png" alt="Fig.5 The overall procedure of gcForest"></p>
 <h3 id="Overall-Procedure-and-Hyper-Parameters"><a href="#Overall-Procedure-and-Hyper-Parameters" class="headerlink" title="Overall Procedure and Hyper-Parameters"></a>Overall Procedure and Hyper-Parameters</h3><p>上图展示了gcForest的整体算法结构。假定原始输入为400原始特征，多粒度扫描采用三个窗口size。对于$m$个训练样本，窗口大小为100时会生成$301\times m$个100维的训练数据集。用这些数据去训练一个completely-random tree forest和一个random forest，每个都包含500个树。当要预测3个类别时，一个instance会有一个1806维的特征向量。做过如此转换的训练集，之后将在cascade forest的第一级上训练。</p>
-<p>同样的，大小为200、300的滑动窗口对于每一个原始的训练样本，会分别生成一个1206维、606维的特征向量。转换的特征向量（$12-dim$），用前一级生成的类别向量增广之后，分别在第二级和第三级的cascade forest中训练。一直重复这个过程，直到验证集的性能收敛。最终的模型可视为是一个cascade of cascades，每个cascade包括多个level，每个level对应于一个扫描粒度。对于复杂问题，在计算资源允许的前提下可尝试更多粒度。</p>
+<p>同样的，大小为200、300的滑动窗口对于每一个原始的训练样本，会分别生成一个1206维、606维的特征向量。转换的特征向量（$12-dim$），用前一级生成的类别向量增广之后，分别在第二级和第三级的cascade forest中训练。一直重复这个过程，直到验证集的性能收敛。最终的模型可视为是一个<strong>cascade of cascades</strong>，每个cascade包括多个level，每个level对应于一个扫描粒度。对于复杂问题，在计算资源允许的前提下可尝试更多粒度。</p>
 <p>对于test instance，在经过多粒度扫描之后得到其对应转换表示，然后进入cascade直到最后一层。最后的预测结果是通过融合最后一层四个forest的四个3维类别向量，然后选取最大值的那个类别。</p>
 <p>Table 1 总结了DNN和gcForest的超参数，我们实验中参数的默认值也已给出。</p>
-<p><img src="\images\1537870858386.png" alt="Table 1"></p>
+<p><img src="\images\1537870858386.png" alt="Table 1 Summary of hyper-parameters and default settings"></p>
 <h2 id="Experiments"><a href="#Experiments" class="headerlink" title="Experiments"></a>Experiments</h2><h3 id="Configuration"><a href="#Configuration" class="headerlink" title="Configuration"></a>Configuration</h3><p>gcForest默认参数：</p>
 <ul>
 <li><p>4 completely-random tree forest, 4 random forest</p>
@@ -195,65 +195,65 @@
 </li>
 </ul>
 <p>对应DNNs，ReLU、cross-entropy、adadelta、droupout 0.25 or 0.5</p>
-<h3 id="Results"><a href="#Results" class="headerlink" title="Results"></a>Results</h3><h4 id="Image-Categorization"><a href="#Image-Categorization" class="headerlink" title="Image Categorization"></a>Image Categorization</h4><p>MNIST：LeNet-5，SVM with rbf, Random Forest with 2000 trees, Deep Belief Nets</p>
-<p><img src="\images\1537879107385.png" alt="Table 2"></p>
-<h4 id="Face-Recognition"><a href="#Face-Recognition" class="headerlink" title="Face Recognition"></a>Face Recognition</h4><p>ORL: </p>
+<h3 id="Results"><a href="#Results" class="headerlink" title="Results"></a>Results</h3><h4 id="Image-Categorization"><a href="#Image-Categorization" class="headerlink" title="Image Categorization"></a>Image Categorization</h4><p>MNIST（train/val : 60000/1000）：LeNet-5，SVM with rbf, Random Forest with 2000 trees, Deep Belief Nets</p>
+<p><img src="\images\1537879107385.png" alt="Table 2 Comparison of test accuracy on MNIST"></p>
+<h4 id="Face-Recognition"><a href="#Face-Recognition" class="headerlink" title="Face Recognition"></a>Face Recognition</h4><p>ORL (400 gray-scale face images from 40 people): </p>
 <ul>
 <li><p>CNN 2个卷积层，32个$3\times3$kernel的feature maps，每个卷积层后一个$2\times 2$的最大池化，128的线性层和40的softmax ReLU, cross-entropy loss, dropout rate of 0.25, adadelta, batch size 10, epochs 50</p>
 </li>
 <li><p>kNN with k=3</p>
 </li>
 </ul>
-<p><img src="\images\1537879541368.png" alt="Table 3"></p>
-<h4 id="Music-Classification"><a href="#Music-Classification" class="headerlink" title="Music Classification"></a>Music Classification</h4><p>GTZAN 10个流派 MFCC feature $1280\times 13$</p>
+<p><img src="\images\1537879541368.png" alt="Table 3 Comparison of test accuracy on ORL"></p>
+<h4 id="Music-Classification"><a href="#Music-Classification" class="headerlink" title="Music Classification"></a>Music Classification</h4><p>GTZAN (10个流派，每个流派100个flips，train/val : 700/300 MFCC feature $1280\times 13$)</p>
 <ul>
 <li>CNN 32个$13\times 8$kernel的feature maps，跟着一个池化层，2个全连接层1024，512，最后一个softmax Relu, categorical cross-entropy </li>
 <li>Random Forest, Logistic Regression, SVM</li>
 </ul>
-<p><img src="\images\1537880108497.png" alt="Table 4"></p>
-<h4 id="Hand-Movement-Recognition"><a href="#Hand-Movement-Recognition" class="headerlink" title="Hand Movement Recognition"></a>Hand Movement Recognition</h4><p>sEMG time series</p>
+<p><img src="\images\1537880108497.png" alt="Table 4 Comparison of test accuracy on GTZAN"></p>
+<h4 id="Hand-Movement-Recognition"><a href="#Hand-Movement-Recognition" class="headerlink" title="Hand Movement Recognition"></a>Hand Movement Recognition</h4><p>sEMG (time series, 1800 records for 6 classes)</p>
 <ul>
 <li>MLP input-1024-512-output</li>
 <li>LSTM 128 hidden units, sequence length 6</li>
 </ul>
-<p><img src="\images\1537880408716.png" alt="Table 5"></p>
-<h4 id="Sentiment-Classification"><a href="#Sentiment-Classification" class="headerlink" title="Sentiment Classification"></a>Sentiment Classification</h4><p>IMDB reviews tf-idf features</p>
+<p><img src="\images\1537880408716.png" alt="Table 5 Comparison of test accuracy on sEMG data"></p>
+<h4 id="Sentiment-Classification"><a href="#Sentiment-Classification" class="headerlink" title="Sentiment Classification"></a>Sentiment Classification</h4><p>IMDB (movie reviews, tf-idf features, train/val : 25000/25000)</p>
 <ul>
 <li>MLP imput-1024-1024-512-256-output</li>
 <li>tf-idf 没有空间或者序列特征，故gcForest跳过多粒度扫描</li>
 </ul>
-<p><img src="\images\1537880763927.png" alt="Table 6"></p>
+<p><img src="\images\1537880763927.png" alt="Table 6 Comparison of test accuracy on IMDB"></p>
 <h3 id="Low-Dimensional-Data"><a href="#Low-Dimensional-Data" class="headerlink" title="Low-Dimensional Data"></a>Low-Dimensional Data</h3><p>UCI-datasets: </p>
 <ul>
-<li>LETTER 16 16000/4000</li>
-<li>ADULT 14 32561/16281</li>
-<li>YEAST 8 1038/446</li>
+<li>LETTER 16 dim, 16000/4000</li>
+<li>ADULT 14 dim, 32561/16281</li>
+<li>YEAST 8 dim, 1038/446</li>
 </ul>
 <p>对比算法：</p>
 <ul>
 <li>MLPs input-70\30\50-50\20\30-output</li>
 <li>gcForest 跳过多粒度扫描</li>
 </ul>
-<p><img src="\images\1537881457773.png" alt="Table 7"></p>
-<h3 id="High-Dimensional-Data"><a href="#High-Dimensional-Data" class="headerlink" title="High-Dimensional Data"></a>High-Dimensional Data</h3><p>CIFAR-10</p>
-<p><img src="\images\1537881554041.png" alt="Table 8"></p>
+<p><img src="\images\1537881457773.png" alt="Table 7 Comparison of test accuracy on low-dim data"></p>
+<h3 id="High-Dimensional-Data"><a href="#High-Dimensional-Data" class="headerlink" title="High-Dimensional Data"></a>High-Dimensional Data</h3><p>CIFAR-10 (50000/10000 10 classes)</p>
+<p><img src="\images\1537881554041.png" alt="Table 8 Comparison of test accuracy on CIFAR-10"></p>
 <p>增广特征在高维的原始特征前，出现淹没现象。效果提高：task-specific tuning, more grains, gbdt(简单替换最后一层)</p>
+<h3 id="Influence-of-Multi-Grained-Scanning"><a href="#Influence-of-Multi-Grained-Scanning" class="headerlink" title="Influence of Multi-Grained Scanning"></a>Influence of Multi-Grained Scanning</h3><p><img src="\images\1537882354962.png" alt="Table 9 Results of gcForest w/wo multi-grained scanning"></p>
+<h3 id="Influence-of-Cascade-Structure"><a href="#Influence-of-Cascade-Structure" class="headerlink" title="Influence of Cascade Structure"></a>Influence of Cascade Structure</h3><p>图5介绍了cascade of cascades的多粒度融合方法，当然，也可将各粒度的特征直接拼接，结构如下图：</p>
+<p><img src="\images\1537882538721.png" alt="Fig.6 The variant gcForest_conc which concatenates all features from multiple grains"></p>
+<p>下表是gcForest与gcForest$_{conc}$的性能比较：</p>
+<p><img src="\images\1537882648184.png" alt="Table 10 Results of gcForest with the variant of concatenating features from multiple grains"></p>
+<h3 id="Influence-of-Larger-Models"><a href="#Influence-of-Larger-Models" class="headerlink" title="Influence of Larger Models"></a>Influence of Larger Models</h3><p>由于计算资源限制，并未尝试更大模型。GPU目前无法加速gcForest！！！！！！</p>
 <h3 id="Running-TIme"><a href="#Running-TIme" class="headerlink" title="Running TIme"></a>Running TIme</h3><p>PC with 2 Intel E5 2695 v4 CPUs (18 cores)</p>
-<p>IMDB dataset (25,000 examples with 5,000 features):</p>
+<p>IMDB dataset (25,000 examples  with 5,000 features):</p>
 <ul>
 <li>267.1 seconds per cascade level, automatically terminates with 9 cascade levels, amounting to 2,404 seconds or 40 minutes. </li>
 <li>amounting to 4,650 seconds or 77.5 minutes. if using GPU (Nvidia Titan X pascal), amounting to 700 seconds or 11.6 minutes</li>
 </ul>
 <p>多粒度扫描会增加时间成本，但是不同的粒度扫描过程内在并行，每一级内部的foerst生成过程也是并行的。故以后效率提升可用更好的并行化方法。</p>
-<h3 id="Influence-of-Multi-Grained-Scanning"><a href="#Influence-of-Multi-Grained-Scanning" class="headerlink" title="Influence of Multi-Grained Scanning"></a>Influence of Multi-Grained Scanning</h3><p><img src="\images\1537882354962.png" alt="Table 9"></p>
-<h3 id="Influence-of-Cascade-Structure"><a href="#Influence-of-Cascade-Structure" class="headerlink" title="Influence of Cascade Structure"></a>Influence of Cascade Structure</h3><p>图5介绍了cascade of cascades的多粒度融合方法，当然，也可将各粒度的特征直接拼接，结构如下图：</p>
-<p><img src="\images\1537882538721.png" alt="Fig.6"></p>
-<p>下表是gcForest与gcForest$_{conc}$的性能比较：</p>
-<p><img src="\images\1537882648184.png" alt="Table 10"></p>
-<h3 id="Influence-of-Larger-Models"><a href="#Influence-of-Larger-Models" class="headerlink" title="Influence of Larger Models"></a>Influence of Larger Models</h3><p>由于计算资源限制，并未尝试更大模型。GPU目前无法加速gcForest！！！！！！</p>
-<h2 id="Related-Work"><a href="#Related-Work" class="headerlink" title="Related Work"></a>Related Work</h2><p><img src="\images\1537883061306.png" alt="Fig.7 a"><img src="\images\1537883089964.png" alt="Fig.7 b"><img src="\images\1537883111027.png" alt="Fig.7 c"></p>
+<h2 id="Related-Work"><a href="#Related-Work" class="headerlink" title="Related Work"></a>Related Work</h2><p><img src="\images\1537883061306.png" alt="Fig.7 a Test accuracy of gcForest with increasing number of grains"><img src="\images\1537883089964.png" alt="Fig.7 b Test accuracy of gcForest with increasing number of forests"><img src="\images\1537883111027.png" alt="Fig.7 c Test accuracy of gcForest with increasing number of trees"></p>
 <h2 id="Future-Issues"><a href="#Future-Issues" class="headerlink" title="Future Issues"></a>Future Issues</h2><ul>
-<li>加强特征re-representation过程：父节点，兄弟节点，决策路径</li>
+<li>加强特征re-representation过程：为了解决高维数据的特征淹没问题，可引入父节点，兄弟节点，决策路径等特征</li>
 <li>加速，内存占用优化：<ul>
 <li>借用相关硬件架构，如Intel KNL；</li>
 <li>算法分布式实现；</li>
@@ -263,13 +263,38 @@
 </li>
 <li>completely-random tree forests不仅增加了多样性， 也有可能利用unlabeled data</li>
 </ul>
-<h2 id="个人思考"><a href="#个人思考" class="headerlink" title="个人思考"></a>个人思考</h2><ul>
-<li>采用原始特征拼接前一层转换特征的的方式，引入了类似shortcut-connection，但是这个shortcut只引入原始特征，中间靠前层级的转换特征并没有shortcut到之后层以供学习。</li>
-<li>多粒度扫描像1D和2D的convolution，但是觉得这样的特征转换，对于label的处理过于武断，对于序列与空间信息不够完善，还有很大的发展空间。</li>
-<li>由于data-dependant，如何进行迁移学习，如何fine-tune是个很大的问题</li>
-<li>大数据集上面到底表现如何</li>
+<h2 id="实机测试"><a href="#实机测试" class="headerlink" title="实机测试"></a>实机测试</h2><h3 id="Environment"><a href="#Environment" class="headerlink" title="Environment"></a>Environment</h3><p>CPU: Intel i5-7300HQ(4 cores, 2.50GHz)</p>
+<p>Mem: 8GB total ($\sim 5$GB for testing)</p>
+<p>Datasets: MNIST</p>
+<p>Official Codes：<a href="https://github.com/kingfengji/gcForest" target="_blank" rel="noopener">Github/gcForest</a></p>
+<h3 id="Test-a"><a href="#Test-a" class="headerlink" title="Test a:"></a>Test a:</h3><ul>
+<li>XGBoost: n_estimators = 10, max_depth = 5</li>
+<li>Radom Forest: n_estimators = 10</li>
+<li>Extra-Trees: n_estimators = 10</li>
+<li><strong>Logistic Regression</strong></li>
+<li>each module cv = 5</li>
 </ul>
-<p><a href="https://www.zhihu.com/question/56474891" target="_blank" rel="noopener">参考</a></p>
+<p>Results:</p>
+<p><img src="\images\1538185704957.png" alt="Fig.8 gcForest training process on MNIST (a)"></p>
+<h3 id="Test-b"><a href="#Test-b" class="headerlink" title="Test b"></a>Test b</h3><ul>
+<li>XGBoost: n_estimators = 10, max_depth = 5</li>
+<li>Radom Forest: n_estimators = 15</li>
+<li>Extra-Trees: n_estimators = 15</li>
+<li><strong>Extra-Trees: n_estimators</strong> = 15</li>
+<li>each module cv = 5</li>
+</ul>
+<p>Results:</p>
+<p><img src="\images\1538185740875.png" alt="Fig.8 gcForest training process on MNIST (b)"></p>
+<p>在此只做了两个简单的测试，需要提前说明的是，在测试过程中，个人电脑上还在进行其它一些简单的工作，所以以下结果<strong>仅供参考</strong>。</p>
+<p>从<strong>运行时间</strong>的表现来看，Test a中生成一个cascade layer平均需要<strong>2h50m</strong>左右，Test b则平均需要<strong>4m27s</strong>左右。 这样的时间差距，主要在于Test a的LogisticRegression运行十分耗时。</p>
+<p>另外从<strong>memory consumption</strong>来看，对于MNIST这样的数据集，内存占用竟然超过了<strong>5G</strong>，并且，无论是Test a 还是Test b 都因为<strong>内存不够无法完成训练</strong>，在第7个cascade layer自动终止。 这里需要说明的是，官方源码中提供了设置<code>set_keep_model_in_mem</code>，default为<code>True</code>，故可将其改为<code>False</code>应当可以完成训练过程。但是，其内存占用还是过于庞大。</p>
+<h3 id="个人思考"><a href="#个人思考" class="headerlink" title="个人思考"></a>个人思考</h3><ul>
+<li>采用原始特征拼接前一层转换特征的的方式，引入了<strong>类似shortcut-connection</strong><a href="https://www.zhihu.com/question/56474891/answer/149427631" target="_blank" rel="noopener">[1]</a>，但是这个shortcut只引入原始特征，中间层级的转换特征并没有shortcut到之后层以供学习</li>
+<li>多粒度扫描像1D和2D的convolution，但是这样的特征转换，对于<strong>label</strong>的处理个人觉得有些武断，对于<strong>序列与空间信息</strong>不够完善</li>
+<li>由于data-dependant，如何进行<strong>迁移学习</strong>，如何<strong>fine-tune</strong>是个很大的问题<a href="https://www.zhihu.com/question/56474891/answer/149549752" target="_blank" rel="noopener">[2]</a></li>
+<li><strong>大数据集</strong>上面到底表现如何</li>
+<li>不可否认的是，周志华老师的这项工作本意是“打开深度学习的大门”（if success），让人不禁有些新的想象。但就如文章中所说，目前的工作只是个萌芽，与成熟的DNNs在很多领域无法扳手腕，只是希望其以后成为一个alternative，而不是干掉DNNs。</li>
+</ul>
 
     
     </div>
