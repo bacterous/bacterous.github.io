@@ -94,7 +94,7 @@
         <span class="column is-narrow">
             
             
-            26 分钟 读完 (约 3856 字)
+            26 分钟 读完 (约 3860 字)
         </span>
         
     </div>
@@ -102,7 +102,7 @@
     
         <blockquote>
 <p>论文链接<a href="https://arxiv.org/abs/1702.08835" target="_blank" rel="noopener">https://arxiv.org/abs/1702.08835</a></p>
-<p>注：本文谨代表笔者观点，文中若有不足及疏忽之处，诚请批评指正</p>
+<p>注：本文谨代表笔者观点，水平有限，若有不足及疏忽之处，诚请批评指正</p>
 </blockquote>
 <h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><ul>
 <li><p>尝试用不可微模块建立深度模型</p>
@@ -161,10 +161,10 @@
 <p><img src="\images\1537862005085.png" alt="Fig.2 Illustration of cascade forest structure"></p>
 <p>每一层是一个决策树森林的集成，包含two random forests (black) and two completely-random tree forests(blue)。每个completely-random tree forests 包含500个完全随机的树，其中，每棵树随机选择属性分裂节点，直至纯净的叶子节点。每个random forest包含500个树，随机选择$\sqrt d$个属性作为候选集，再依据jini分裂。</p>
 <p>给定一个实例，通过计算实例所落在的叶子节点上，不同类别训练样本的比例，之后将该森林中每棵树的结果作以平均，每个forest就可以得到类别分布的估计。这个类别分布构成一个类别向量，再与之前原始特征拼接，作为下一层的输入。</p>
-<p><img src="\images\1537863642425.png" alt="Fig.3 Illustration of class vector generation"></p>
+<p><img src="。\images\1537863642425.png" alt="Fig.3 Illustration of class vector generation"></p>
 <p>假设有3个类别，那么四个森林，每个都会产生一个3维的类别向量，下一层会接收到12（$=3\times4$）个扩增特征。</p>
 <p>这里类别特征太简单，这样的小的增广特征，所能传递的增广信息很有限，会被原始特征<strong>淹没</strong>。很明显，更可以合并更多特征，比如父节点的类别分布（先验分布），兄弟节点的类别分布（互补分布）。</p>
-<p>每个森林的类别向量利用k折交叉验证得到，以防止过拟合。扩展完一层后，整个级联结构可在验证集上面测试性能，若没有显著提高，训练过程会终止，故而层数可以<strong>自动</strong>确定。这也是gcForest能够<strong>自动决定模型复杂度</strong>的原因。</p>
+<p>每个森林的类别向量利用k折交叉验证得到，以防止过拟合。扩展完一层后，整个级联结构可在验证集上面测试性能，若没有显著提高，训练过程会终止，故而层数可以自动确定。这也是gcForest能够<strong>自动决定模型复杂度</strong>的原因。</p>
 <h3 id="Multi-Grained-Scanning"><a href="#Multi-Grained-Scanning" class="headerlink" title="Multi-Grained Scanning"></a>Multi-Grained Scanning</h3><p>由CNNs和RNNs启发，利用多粒度扫描加强cascade forest。</p>
 <p><img src="\images\1537865948334.png" alt="Fig.4 Illustration of feature re-representation using sliding window scannig"></p>
 <p>如上图，利用滑动窗口扫描原始特征。假设原始特征为400，窗口大小为100。对于序列数据，一次滑动得到一个100维的特征向量，共生成301个特征向量。如果原始数据存在空间联系，例如400图像像素可视为$20\times 20$的panel，$10\times10$的窗口会生成121个特征向量。特征向量的类别标签与原始数据的标签保持一致。以上图序列数据为例，假设有3类的前提下，每棵树利用100维的窗口生成了301个特征向量，同时就有301个3维的类别向量，即对应原始400维的特征向量就生成了一个1806维的转换特征。</p>
@@ -291,7 +291,7 @@
 <h3 id="个人思考"><a href="#个人思考" class="headerlink" title="个人思考"></a>个人思考</h3><ul>
 <li>采用原始特征拼接前一层转换特征的的方式，引入了<strong>类似shortcut-connection</strong><a href="https://www.zhihu.com/question/56474891/answer/149427631" target="_blank" rel="noopener">[1]</a>，但是这个shortcut只引入原始特征，中间层级的转换特征并没有shortcut到之后层以供学习</li>
 <li>多粒度扫描像1D和2D的convolution，但是这样的特征转换，对于<strong>label</strong>的处理个人觉得有些武断，对于<strong>序列与空间信息</strong>不够完善</li>
-<li>由于data-dependant，如何进行<strong>迁移学习</strong>，如何<strong>fine-tune</strong>是个很大的问题<a href="https://www.zhihu.com/question/56474891/answer/149549752" target="_blank" rel="noopener">[2]</a></li>
+<li>由于data-dependent，如何进行<strong>迁移学习</strong>，如何<strong>fine-tune</strong>是个很大的问题<a href="https://www.zhihu.com/question/56474891/answer/149549752" target="_blank" rel="noopener">[2]</a></li>
 <li><strong>大数据集</strong>上面到底表现如何</li>
 <li>周志华老师的这项工作本意是“打开深度学习的大门”（if success），让人不禁有些新的想象。但就如文章中所说，目前的工作只是个萌芽，与成熟的DNNs在很多领域无法扳手腕，只是希望其以后成为一个alternative，而不是干掉DNNs。</li>
 </ul>
