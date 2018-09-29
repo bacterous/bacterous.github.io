@@ -94,7 +94,7 @@
         <span class="column is-narrow">
             
             
-            26 分钟 读完 (约 3854 字)
+            26 分钟 读完 (约 3847 字)
         </span>
         
     </div>
@@ -107,14 +107,14 @@
 <h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><ul>
 <li><p>尝试用不可微模块建立深度模型</p>
 </li>
-<li><p>推测dnn成功的秘密在于：</p>
+<li><p>推测DNNs成功的秘密在于：</p>
 <ul>
 <li>layer by layer processing</li>
 <li>in-model feature transformation</li>
 <li>sufficient model complexity</li>
 </ul>
 </li>
-<li><p>提出gcForest，决策树集合方法，比DNN更少的超参数，模型复杂度依据数据自动调整。采用默认参数设置，对于不同领域各种类型的数据，在大部分情况下相当鲁棒。</p>
+<li><p>提出gcForest，决策树集合方法，比DNNs更少的超参数，模型复杂度依据数据自动调整。采用默认参数设置，对于不同领域各种类型的数据，在大部分情况下相当鲁棒。</p>
 </li>
 </ul>
 <a id="more"></a>
@@ -134,7 +134,7 @@
 <ol>
 <li>深度模型是否只能用可微的模块构建</li>
 <li>不用反向传播可以训练深度模型吗</li>
-<li>在rf或者XGBoost表现强劲的task上，能否让深度模型表现更好</li>
+<li>在RandomForest或者XGBoost表现强劲的task上，能否让深度模型表现更好</li>
 </ol>
 <p>由layer-by-layer结构启发，采用级联的forest结构，提出gcforest，有着这样的优点：</p>
 <ul>
@@ -287,13 +287,13 @@
 <p><img src="\images\1538185740875.png" alt="Fig.8 gcForest training process on MNIST (b)"></p>
 <p>在此只做了两个简单的测试，需要提前说明的是，在测试过程中，个人电脑上还在进行其它一些简单的工作，所以以下结果<strong>仅供参考</strong>。</p>
 <p>从<strong>运行时间</strong>的表现来看，Test a中生成一个cascade layer平均需要<strong>2h50m</strong>左右，Test b则平均需要<strong>4m27s</strong>左右。 这样的时间差距，主要在于Test a的LogisticRegression运行十分耗时。</p>
-<p>另外从<strong>memory consumption</strong>来看，对于MNIST这样的数据集，内存占用竟然超过了<strong>5G</strong>，并且，无论是Test a 还是Test b 都因为<strong>内存不够无法完成训练</strong>，在第7个cascade layer自动终止。 这里需要说明的是，官方源码中提供了设置<code>set_keep_model_in_mem</code>，default为<code>True</code>，故可将其改为<code>False</code>应当可以完成训练过程。但是，其内存占用还是过于庞大。</p>
+<p>另外从<strong>memory consumption</strong>来看，对于MNIST这样的数据集，内存占用竟然超过了<strong>5G</strong>，并且，无论是Test a 还是Test b 都因为<strong>内存不足无法完成训练</strong>，在第7个cascade layer自动终止。 这里需要说明的是，官方源码中提供了设置<code>set_keep_model_in_mem</code>，default为<code>True</code>，故可将其改为<code>False</code>应当可以完成训练过程。但是，其内存占用还是过于庞大。</p>
 <h3 id="个人思考"><a href="#个人思考" class="headerlink" title="个人思考"></a>个人思考</h3><ul>
 <li>采用原始特征拼接前一层转换特征的的方式，引入了<strong>类似shortcut-connection</strong><a href="https://www.zhihu.com/question/56474891/answer/149427631" target="_blank" rel="noopener">[1]</a>，但是这个shortcut只引入原始特征，中间层级的转换特征并没有shortcut到之后层以供学习</li>
 <li>多粒度扫描像1D和2D的convolution，但是这样的特征转换，对于<strong>label</strong>的处理个人觉得有些武断，对于<strong>序列与空间信息</strong>不够完善</li>
 <li>由于data-dependant，如何进行<strong>迁移学习</strong>，如何<strong>fine-tune</strong>是个很大的问题<a href="https://www.zhihu.com/question/56474891/answer/149549752" target="_blank" rel="noopener">[2]</a></li>
 <li><strong>大数据集</strong>上面到底表现如何</li>
-<li>不可否认的是，周志华老师的这项工作本意是“打开深度学习的大门”（if success），让人不禁有些新的想象。但就如文章中所说，目前的工作只是个萌芽，与成熟的DNNs在很多领域无法扳手腕，只是希望其以后成为一个alternative，而不是干掉DNNs。</li>
+<li>周志华老师的这项工作本意是“打开深度学习的大门”（if success），让人不禁有些新的想象。但就如文章中所说，目前的工作只是个萌芽，与成熟的DNNs在很多领域无法扳手腕，只是希望其以后成为一个alternative，而不是干掉DNNs。</li>
 </ul>
 
     
