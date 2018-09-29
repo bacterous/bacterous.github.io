@@ -94,7 +94,7 @@
         <span class="column is-narrow">
             
             
-            26 分钟 读完 (约 3847 字)
+            26 分钟 读完 (约 3856 字)
         </span>
         
     </div>
@@ -285,7 +285,7 @@
 </ul>
 <p>Results:</p>
 <p><img src="\images\1538185740875.png" alt="Fig.8 gcForest training process on MNIST (b)"></p>
-<p>在此只做了两个简单的测试，需要提前说明的是，在测试过程中，个人电脑上还在进行其它一些简单的工作，所以以下结果<strong>仅供参考</strong>。</p>
+<p>在此只做了两个简单的测试，需要提前说明的是，在测试过程中，个人电脑上还在进行其它一些简单的工作，故测试环境十分不严谨，以下结果<strong>仅供参考</strong>。</p>
 <p>从<strong>运行时间</strong>的表现来看，Test a中生成一个cascade layer平均需要<strong>2h50m</strong>左右，Test b则平均需要<strong>4m27s</strong>左右。 这样的时间差距，主要在于Test a的LogisticRegression运行十分耗时。</p>
 <p>另外从<strong>memory consumption</strong>来看，对于MNIST这样的数据集，内存占用竟然超过了<strong>5G</strong>，并且，无论是Test a 还是Test b 都因为<strong>内存不足无法完成训练</strong>，在第7个cascade layer自动终止。 这里需要说明的是，官方源码中提供了设置<code>set_keep_model_in_mem</code>，default为<code>True</code>，故可将其改为<code>False</code>应当可以完成训练过程。但是，其内存占用还是过于庞大。</p>
 <h3 id="个人思考"><a href="#个人思考" class="headerlink" title="个人思考"></a>个人思考</h3><ul>
